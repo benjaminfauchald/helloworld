@@ -15,7 +15,10 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "helloworld" is now active!');
-	
+
+	context.globalState.update('JIRA_OLD_API_URL','https://morphosis.atlassian.net/rest/agile/1.0/')
+    context.globalState.update('JIRA_USERNAME','benjamin@morphos.is')
+    context.globalState.update('JIRA_PASSWORD','gmFHjBIJDSMZhnQ2JGF903A0')
 
 
 	// This sets the command in the statusbar
