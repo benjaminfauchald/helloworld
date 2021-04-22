@@ -62,12 +62,14 @@
 		"glob": "^7.1.6",
 		"mocha": "^8.0.1",
 		"read-git-user": "^2.0.1",
+		"git-branch": "^2.0.1",
 		"typescript": "^3.8.3",
 		"vscode-test": "^1.4.0"
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
 		"read-git-user": "^2.0.1",
+		"git-branch-name": "^1.1.0",
 		"vscode": "^0.9.9"
 	}
 }
