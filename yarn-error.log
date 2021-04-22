@@ -1,0 +1,104 @@
+Arguments: 
+  /usr/local/Cellar/node/15.14.0/bin/node /usr/local/bin/yarn add @types/vscode1.36.0
+
+PATH: 
+  /Users/benjamin/.rbenv/shims:/Users/benjamin/.rbenv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Users/benjamin/.rbenv/shims:/Users/benjamin/.rbenv/bin
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  15.14.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@types%2fvscode1.36.0: Not found
+      at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66988:18)
+      at Request.self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:140662:22)
+      at Request.emit (node:events:369:20)
+      at Request.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141634:10)
+      at Request.emit (node:events:369:20)
+      at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141556:12)
+      at Object.onceWrapper (node:events:475:28)
+      at IncomingMessage.emit (node:events:381:22)
+      at endReadableNT (node:internal/streams/readable:1307:12)
+      at processTicksAndRejections (node:internal/process/task_queues:81:21)
+
+npm manifest: 
+  {
+  	"name": "harvest-vscode",
+  	"displayName": "Harvest Time Tracker",
+  	"description": "Harvest Integration to VS Code",
+  	"version": "0.1.0",
+  	"publisher": "Tzedakah",
+  	"repository": "https://github.com/joshuashoemaker/harvest-vscode",
+  	"icon": "harvestLogo.png",
+  	"engines": {
+  		"vscode": "^1.49.0"
+  	},
+  	"categories": [
+  		"Other"
+  	],
+  	"keywords": [
+  		"Project Management",
+  		"time tracker"
+  	],
+  	"activationEvents": [
+  		"*"
+  	],
+  	"main": "./out/extension.js",
+  	"contributes": {
+  		"commands": [
+  			{
+  				"command": "harvest-vscode.punchTime",
+  				"title": "Harvest: Punch Time"
+  			},
+  			{
+  				"command": "harvest-vscode.login",
+  				"title": "Harvest: Login"
+  			},
+  			{
+  				"command": "harvest-vscode.logout",
+  				"title": "Harvest: Logout"
+  			},
+  			{
+  				"command": "harvest-vscode.stopTimer",
+  				"title": "Harvest: Stop Timer"
+  			}
+  		]
+  	},
+  	"scripts": {
+  		"vscode:prepublish": "npm run compile",
+  		"compile": "tsc -p ./",
+  		"lint": "eslint src --ext ts",
+  		"watch": "tsc -watch -p ./",
+  		"pretest": "npm run compile && npm run lint",
+  		"core-test": "ts-node ./src/test.suite/coreTests.ts",
+  		"extention-test": "node ./out/test/runTest.js"
+  	},
+  	"devDependencies": {
+  		"@types/axios": "^0.14.0",
+  		"@types/glob": "^7.1.3",
+  		"@types/mocha": "^8.0.0",
+  		"@types/node": "^14.0.27",
+  		"@types/vscode": "^1.49.0",
+  		"@typescript-eslint/eslint-plugin": "^3.8.0",
+  		"@typescript-eslint/parser": "^3.8.0",
+  		"eslint": "^7.6.0",
+  		"glob": "^7.1.6",
+  		"mocha": "^8.0.1",
+  		"typescript": "^3.8.3",
+  		"vscode-test": "^1.4.0"
+  	},
+  	"dependencies": {
+  		"axios": "^0.21.1"
+  	}
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

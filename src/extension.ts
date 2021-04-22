@@ -3,7 +3,7 @@
 import * as vscode from 'vscode'
 import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
 import Test from './UseCases/Commands/Test'
-
+import JiraTest from './UseCases/Commands/JiraTest'
 
 
 
@@ -15,13 +15,13 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "helloworld" is now active!');
-	Test(context)
+	
 
 
 	// This sets the command in the statusbar
 	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
 	statusbar.text = 'Morphois'
-	statusbar.command = 'harvest-vscode.Test'
+	statusbar.command = 'harvest-vscode.JiraTest'
 	statusbar.show()
 
 
@@ -29,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const commands: vscode.Disposable[] = [
 		SetUserAuthentication(context),
-		Test(context)
+		JiraTest(context)
 	]
 
 	context.subscriptions.push(...commands)
