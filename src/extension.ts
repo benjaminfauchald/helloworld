@@ -3,7 +3,8 @@
 import * as vscode from 'vscode'
 import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
 import HelloWorld from './UseCases/Commands/HelloWorld'
-import GitInfo from './UseCases/Commands/GitInfo'
+import GitEmail from './UseCases/Commands/GitEmail'
+import GitEmail from './UseCases/Commands/GitEmail'
 
 
 // this method is called when your extension is activated

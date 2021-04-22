@@ -47,7 +47,20 @@
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
 		"core-test": "ts-node ./src/test.suite/coreTests.ts",
-		"extention-test": "node ./out/test/runTest.js"
+		"extention-test": "node ./out/test/runTest.js",
+
+		"init": "gitex-flow init",
+		"feature:start": "gitex-flow feature start",
+		"feature:finish": "gitex-flow feature finish",
+		"release:start": "gitex-flow release start",
+		"release:finish": "gitex-flow release finish",
+		"hotfix:start": "gitex-flow hotfix start",
+		"hotfix:finish": "gitex-flow hotfix finish",
+		"bugfix:start": "gitex-flow bugfix start",
+		"bugfix:finish": "gitex-flow bugfix finish",
+		"support:start": "gitex-flow support start",
+		"support:finish": "gitex-flow support finish"
+
 	},
 	"devDependencies": {
 		"@types/axios": "^0.14.0",
@@ -71,5 +84,6 @@
 		"read-git-user": "^2.0.1",
 		"git-branch-name": "^1.1.0",
 		"vscode": "^0.9.9"
+
 	}
 }
