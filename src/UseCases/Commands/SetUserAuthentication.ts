@@ -3,8 +3,8 @@
 ///<reference path="./User.ts">
 
 import * as vscode from "vscode";
-import Harvest from "../../Enteties/Harvest"
-import User from "../../Enteties/Harvest"
+import Harvest from "../../Entities/Harvest"
+import User from "../../Entities/Harvest"
 
 function SetUserAuthentication (context: vscode.ExtensionContext): vscode.Disposable {
   return vscode.commands.registerCommand('harvest-vscode.login', async () => {

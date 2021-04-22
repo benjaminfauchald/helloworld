@@ -3,9 +3,9 @@
 	"displayName": "Harvest Time Tracker",
 	"description": "Harvest Integration to VS Code",
 	"version": "0.1.0",
-	"publisher": "Tzedakah",
-	"repository": "https://github.com/joshuashoemaker/harvest-vscode",
-	"icon": "harvestLogo.png",
+	"publisher": "benjaminfauchald",
+	"repository": "https://github.com/benjaminfauchald/helloword",
+	"icon": "https://images.g2crowd.com/uploads/product/image/social_landscape/social_landscape_9c2ade8d82590b744b657e0da5e42a75/harvest.png",
 	"engines": {
 		"vscode": "^1.49.0"
 	},
@@ -27,10 +27,6 @@
 				"title": "Harvest: Punch Time"
 			},
 			{
-				"command": "harvest-",
-				"title": "Harvest: Login"
-			},
-			{
 				"command": "harvest-vscode.logout",
 				"title": "Harvest: Logout"
 			},
@@ -48,7 +44,6 @@
 		"pretest": "npm run compile && npm run lint",
 		"core-test": "ts-node ./src/test.suite/coreTests.ts",
 		"extention-test": "node ./out/test/runTest.js",
-
 		"init": "gitex-flow init",
 		"feature:start": "gitex-flow feature start",
 		"feature:finish": "gitex-flow feature finish",
@@ -60,7 +55,6 @@
 		"bugfix:finish": "gitex-flow bugfix finish",
 		"support:start": "gitex-flow support start",
 		"support:finish": "gitex-flow support finish"
-
 	},
 	"devDependencies": {
 		"@types/axios": "^0.14.0",
@@ -72,18 +66,19 @@
 		"@typescript-eslint/parser": "^3.8.0",
 		"eslint": "^7.6.0",
 		"eslint-plugin-import": "^2.22.1",
+		"git-branch": "^2.0.1",
+		"gitex-flow": "^2.3.1",
 		"glob": "^7.1.6",
 		"mocha": "^8.0.1",
 		"read-git-user": "^2.0.1",
-		"git-branch": "^2.0.1",
 		"typescript": "^3.8.3",
 		"vscode-test": "^1.4.0"
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
-		"read-git-user": "^2.0.1",
 		"git-branch-name": "^1.1.0",
+		"gitex-flow": "^2.3.1",
+		"read-git-user": "^2.0.1",
 		"vscode": "^0.9.9"
-
 	}
 }
