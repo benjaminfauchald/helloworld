@@ -5,6 +5,9 @@ import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
 import HelloWorld from './UseCases/Commands/HelloWorld'
 import GitEmail from './UseCases/Commands/GitEmail'
 import ShellTest from './UseCases/Commands/ShellTest'
+import Experimental from './UseCases/Commands/Experimental'
+
+
 
 
 // this method is called when your extension is activated
@@ -19,9 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// This sets the command in the statusbar
 	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
 	statusbar.text = 'Morphois'
-	statusbar.command = 'harvest-vscode.HelloWorld'
-	statusbar.command = 'harvest-vscode.GitInfo'
-	statusbar.command = 'harvest-vscode.ShellTest'
+	statusbar.command = 'harvest-vscode.Experimental'
 	statusbar.show()
 
 
@@ -31,7 +32,8 @@ export function activate(context: vscode.ExtensionContext) {
 		SetUserAuthentication(context),
 		HelloWorld(context),
 		GitEmail(context),
-		ShellTest(context)
+		ShellTest(context),
+		Experimental(context)
 	]
 
 	context.subscriptions.push(...commands)
