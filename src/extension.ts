@@ -2,10 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
 import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
-import HelloWorld from './UseCases/Commands/HelloWorld'
-import GitEmail from './UseCases/Commands/GitEmail'
-import ShellTest from './UseCases/Commands/ShellTest'
-import Experimental from './UseCases/Commands/Experimental'
+import Test from './UseCases/Commands/Test'
+
 
 
 
@@ -17,12 +15,13 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "helloworld" is now active!');
+	Test(context)
 
 
 	// This sets the command in the statusbar
 	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
 	statusbar.text = 'Morphois'
-	statusbar.command = 'harvest-vscode.Experimental'
+	statusbar.command = 'harvest-vscode.Test'
 	statusbar.show()
 
 
@@ -30,10 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const commands: vscode.Disposable[] = [
 		SetUserAuthentication(context),
-		HelloWorld(context),
-		GitEmail(context),
-		ShellTest(context),
-		Experimental(context)
+		Test(context)
 	]
 
 	context.subscriptions.push(...commands)

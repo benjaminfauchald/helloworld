@@ -27,10 +27,6 @@
 				"title": "Harvest: Punch Time"
 			},
 			{
-				"command": "harvest-vscode.login",
-				"title": "Harvest: Login"
-			},
-			{
 				"command": "harvest-vscode.logout",
 				"title": "Harvest: Logout"
 			},
