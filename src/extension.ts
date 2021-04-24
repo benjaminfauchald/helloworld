@@ -1,10 +1,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
-import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
-import Test from './lib/Test'
-import JiraTest from './UseCases/Commands/JiraTest'
 import Config from './UseCases/Commands/Config'
+import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
+import JiraTest from './UseCases/Commands/JiraTest'
+import GetJiraIssues from './UseCases/Commands/GetJiraIssues'
+
 import TreeDataProvider from './lib/TreeDataProvider'
 
 
@@ -25,22 +26,23 @@ export function activate(context: vscode.ExtensionContext) {
 	Config("SLACK_TICKET_HOOK_PRODUCTION","printenv SLACK_TICKET_HOOK_PRODUCTION",context)
 
 
+	// Getting Jira Issues
+	JiraTest
+
 	// Adding Treeview
 	vscode.window.registerTreeDataProvider('exampleView', new TreeDataProvider());
 
 	// This sets the command in the statusbar
 	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
 	statusbar.text = 'Morphois'
-	statusbar.command = 'harvest-vscode.Initiallize'
+	statusbar.command = 'harvest-vscode.JiraTest'
 	statusbar.show()
 
 	// The command has been defined in the package.json file
 
 	const commands: vscode.Disposable[] = [
 		SetUserAuthentication(context),
-		JiraTest(context),
-		Test("user.name")
-
+		JiraTest(context)		
 	]
 
 	context.subscriptions.push(...commands)
