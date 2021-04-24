@@ -7,11 +7,12 @@ import JiraTest from './UseCases/Commands/JiraTest'
 import GetJiraIssues from './UseCases/Commands/GetJiraIssues'
 
 import TreeDataProvider from './lib/TreeDataProvider'
-
+import TreeItem from './lib/TreeDataProvider'
+import TaskProvider from './lib/TaskProvider'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
@@ -30,7 +31,19 @@ export function activate(context: vscode.ExtensionContext) {
 	JiraTest
 
 	// Adding Treeview
-	vscode.window.registerTreeDataProvider('exampleView', new TreeDataProvider());
+
+	const taskProvider = new TaskProvider(context);
+	vscode.window.registerTreeDataProvider('taskOutline', taskProvider);
+
+	vscode.commands.registerCommand('taskOutline.executeTask', task => {
+		vscode.tasks.executeTask(task).then(function (value) {
+			return value;
+		}, function(e) {
+			console.error('Error');
+		});
+	});
+
+
 
 	// This sets the command in the statusbar
 	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)

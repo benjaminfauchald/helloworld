@@ -25,12 +25,17 @@
 		"views": {
             "explorer": [
                 {
-                    "id": "exampleView",
-                    "name": "exampleView"
+                    "id": "taskOutline",
+                    "name": "TaskRunner"
                 }
             ]
         },
 		"commands": [
+			{
+				"command": "taskOutline.executeTask",
+				"title": "Execute"
+			},
+
 			{
 				"command": "harvest-vscode.punchTime",
 				"title": "Harvest: Punch Time"
