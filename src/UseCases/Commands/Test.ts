@@ -19,7 +19,7 @@ function Test (command: string): vscode.Disposable {
         }
         console.log(`stdout: ${stdout}`);
         my_data = stdout
-        //vscode.window.showInformationMessage(`stdout: ${my_data}`)
+        vscode.window.showInformationMessage(`stdout: ${my_data}`)
     });
     return my_data
 
