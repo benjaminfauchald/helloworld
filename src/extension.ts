@@ -2,21 +2,10 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
 import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
-import Test from './UseCases/Commands/Test'
+import Test from './lib/Test'
 import JiraTest from './UseCases/Commands/JiraTest'
-//import Shell from './UseCases/Commands/Shell'
 import Config from './UseCases/Commands/Config'
-
-import TreeDataProvider from './TreeDataProvider'
-
-
-
-
-
-
-
-
-
+import TreeDataProvider from './lib/TreeDataProvider'
 
 
 // this method is called when your extension is activated
@@ -36,10 +25,8 @@ export function activate(context: vscode.ExtensionContext) {
 	Config("SLACK_TICKET_HOOK_PRODUCTION","printenv SLACK_TICKET_HOOK_PRODUCTION",context)
 
 
-// Adding Treeview
+	// Adding Treeview
 	vscode.window.registerTreeDataProvider('exampleView', new TreeDataProvider());
-
-
 
 	// This sets the command in the statusbar
 	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
