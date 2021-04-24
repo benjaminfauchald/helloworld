@@ -17,10 +17,19 @@
 		"time tracker"
 	],
 	"activationEvents": [
-		"*"
+		"*",
+		"onView:exampleView"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"views": {
+            "explorer": [
+                {
+                    "id": "exampleView",
+                    "name": "exampleView"
+                }
+            ]
+        },
 		"commands": [
 			{
 				"command": "harvest-vscode.punchTime",
@@ -66,19 +75,13 @@
 		"@typescript-eslint/parser": "^3.8.0",
 		"eslint": "^7.6.0",
 		"eslint-plugin-import": "^2.22.1",
-		"git-branch": "^2.0.1",
-		"gitex-flow": "^2.3.1",
 		"glob": "^7.1.6",
 		"mocha": "^8.0.1",
-		"read-git-user": "^2.0.1",
 		"typescript": "^3.8.3",
 		"vscode-test": "^1.4.0"
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
-		"git-branch-name": "^1.1.0",
-		"gitex-flow": "^2.3.1",
-		"read-git-user": "^2.0.1",
 		"vscode": "^0.9.9"
 	}
 }
