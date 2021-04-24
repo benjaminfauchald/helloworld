@@ -7,6 +7,57 @@ import JiraTest from './UseCases/Commands/JiraTest'
 //import Shell from './UseCases/Commands/Shell'
 import Config from './UseCases/Commands/Config'
 
+import './TreeDataProvider'
+
+
+
+
+class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
+	onDidChangeTreeData?: vscode.Event<TreeItem|null|undefined>|undefined;
+  
+	data: TreeItem[];
+  
+	constructor() {
+	  this.data = [new TreeItem('cars', [
+		new TreeItem(
+			'Ford', [new TreeItem('Fiesta'), new TreeItem('Focus'), new TreeItem('Mustang')]),
+		new TreeItem(
+			'BMW', [new TreeItem('320'), new TreeItem('X3'), new TreeItem('X5')])
+	  ])];
+	}
+  
+	getTreeItem(element: TreeItem): vscode.TreeItem|Thenable<vscode.TreeItem> {
+	  return element;
+	}
+  
+	getChildren(element?: TreeItem|undefined): vscode.ProviderResult<TreeItem[]> {
+	  if (element === undefined) {
+		return this.data;
+	  }
+	  return element.children;
+	}
+  }
+  
+  class TreeItem extends vscode.TreeItem {
+	children: TreeItem[]|undefined;
+  
+	constructor(label: string, children?: TreeItem[]) {
+	  super(
+		  label,
+		  children === undefined ? vscode.TreeItemCollapsibleState.None :
+								   vscode.TreeItemCollapsibleState.Expanded);
+	  this.children = children;
+	}
+  }
+  
+  
+
+
+
+
+
+
+
 
 
 // this method is called when your extension is activated
@@ -24,6 +75,10 @@ export function activate(context: vscode.ExtensionContext) {
 	Config("HARVEST_ACCESS_TOKEN","printenv HARVEST_ACCESS_TOKEN",context)
 	Config("FRESHTEAM_API_KEY","printenv FRESHTEAM_API_KEY",context)
 	Config("SLACK_TICKET_HOOK_PRODUCTION","printenv SLACK_TICKET_HOOK_PRODUCTION",context)
+
+
+// Adding Treeview
+	vscode.window.registerTreeDataProvider('exampleView', new TreeDataProvider());
 
 
 
