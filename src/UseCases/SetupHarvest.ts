@@ -13,6 +13,7 @@ async function SetupHarvest (context: vscode.ExtensionContext): Promise<boolean>
   let projectCollection = new ProjectCollection()
   let user = new User()
   
+  console.log("Trying to login")
   const accountId: string = context.globalState.get('accountId') || ''
   const accessToken: string = context.globalState.get('accessToken') || ''
   
@@ -52,7 +53,7 @@ async function SetupHarvest (context: vscode.ExtensionContext): Promise<boolean>
       projectCollection.addMany(projects)
     } catch (err) {
       console.log(err)
-      vscode.window.showErrorMessage('Could not retrieve uer projects')
+      vscode.window.showErrorMessage('Could not retrieve user projects')
       return false
     }
   }

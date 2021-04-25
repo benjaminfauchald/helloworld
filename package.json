@@ -40,19 +40,7 @@
 
 
 		"views": {
-			"package-explorer": [
-				{
-				  "id": "nodeDependencies-explorer",
-				  "name": "Node Dependencies",
-				  "icon": "./media/process.svg",
-				  "contextualTitle": "Package Explorer"
-				}
-			  ],
 			  "explorer": [
-				{
-				  "id": "nodeDependencies",
-				  "name": "Node Dependencies"
-				},
 				{
 					"id": "taskOutline",
 					"name": "Morphosis"
