@@ -22,6 +22,15 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+				"id" : "harvest-vscode",
+				"title": "Morphosis",
+				"icon": "./media/morphosis_logo.svg"
+				}
+			]
+		},
 		"views": {
             "explorer": [
                 {

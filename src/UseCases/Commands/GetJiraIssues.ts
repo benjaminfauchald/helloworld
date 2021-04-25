@@ -23,7 +23,7 @@ const GetJiraIssues = async (): Promise<any> => {
   
     const issue = {
       id: userResponse?.data?.id || 0,
-      key: userResponse?.data?.key || '',
+      issueKey: userResponse?.data?.key || '',
       issueType: userResponse?.data?.key || '',
       project: userResponse?.data?.key || ''
     }
