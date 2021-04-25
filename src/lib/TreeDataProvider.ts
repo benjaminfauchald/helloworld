@@ -28,10 +28,9 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 
     
         
-      const GetJiraIssues = async (): Promise<JiraIssueInterface> => {
+      const GetJiraIssues = async (): Promise<any> => {
         const jira = new Jira()
-        const key = "MOPS-10"
-        const url = `https://morphosis.atlassian.net/rest/api/3/issue/${key}/?fields=timetracking`
+        const url = "https://morphosis.atlassian.net/rest/api/3/search?jql=assignee=currentuser()"
           
         let userResponse: any
         try {
@@ -53,8 +52,23 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
         console.log `ID: ${issue.id}`
         console.log `Key: ${issue.issueKey}`
       
+
+        var jiraIssues:TreeItem[]; 
+        jiraIssues = [] 
+
+        let i=0
+        const data = userResponse.data
+        for (i = 0; i < data.issues.length; i++) {
+          console.log(data?.issues[i]?.key);
+
+
+          jiraIssues.push(new TreeItem(data?.issues[i]?.key))
+
+        }
+
+
         console.log(await userResponse?.data)
-        return issue
+        return jiraIssues
       }
 
 
@@ -62,19 +76,23 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
       console.log(GetJiraIssues())
 
 
+      // let my_data = [new TreeItem('BARS', [
+      //   new TreeItem(
+      //       'Ford', [new TreeItem('Fiesta'), new TreeItem('Focus'), new TreeItem('Mustang')]),
+      //   new TreeItem(
+      //       'BMW', [new TreeItem('320'), new TreeItem('X3'), new TreeItem('X5')])
+      // ])];
 
-
-
-
-
-      let my_data = [new TreeItem('BARS', [
-        new TreeItem(
-            'Ford', [new TreeItem('Fiesta'), new TreeItem('Focus'), new TreeItem('Mustang')]),
-        new TreeItem(
-            'BMW', [new TreeItem('320'), new TreeItem('X3'), new TreeItem('X5')])
-      ])];
-
-      return my_data;
+      let my_data = GetJiraIssues() 
+      if (my_data === undefined)
+      { 
+        let error_data  = [new TreeItem('Error, could not connect to JIRA')]
+        return error_data
+      }
+      else
+      {
+        return my_data;
+      }     
     }
     return element.children;
   }
