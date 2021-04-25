@@ -52,17 +52,35 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
         console.log `ID: ${issue.id}`
         console.log `Key: ${issue.issueKey}`
       
-
-        var jiraIssues:TreeItem[]; 
+        let jiraIssue: string
+        let jiraIssues:TreeItem[]; 
         jiraIssues = [] 
 
         let i=0
+        let summary: string
+        let key: string
         const data = userResponse.data
+
         for (i = 0; i < data.issues.length; i++) {
-          console.log(data?.issues[i]?.key);
+          key = data?.issues[i]?.key
+          summary = data?.issues[i]?.fields?.summary
+           
+          console.log(key)
+          console.log(summary)
+
+          //key always has a value, but lets check description
+          jiraIssue = `${data?.issues[i]?.key}`
+
+          if(summary) {
+            console.log(`I have something for ${key}`);
+            jiraIssue = jiraIssue + " - " + summary
+          } else {
+            console.log(`Nothing for ${key} here...`)
+          }
 
 
-          jiraIssues.push(new TreeItem(data?.issues[i]?.key))
+         
+          jiraIssues.push(new TreeItem(jiraIssue))
 
         }
 
