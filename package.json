@@ -18,34 +18,53 @@
 	],
 	"activationEvents": [
 		"*",
+		"onView:NodeDependenciesProvider",
 		"onView:exampleView"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 
-		"views": {
-            "explorer": [
-                {
-                    "id": "taskOutline",
-                    "name": "Morphosis"
-                }
-            ]
-        },
 		"viewsContainers": {
-			"activitybar": [
+			"panel": [
+			  {
+				"id": "package-explorer",
+				"title": "Package Explorer",
+				"icon": "./media/process.svg"
+			  }
+			]
+		  },
+
+
+
+
+
+
+		"views": {
+			"package-explorer": [
 				{
-				"id" : "harvest-vscode",
-				"title": "Morphosis",
-				"icon": "./media/process.png"
-				} 
+				  "id": "nodeDependencies-explorer",
+				  "name": "Node Dependencies",
+				  "icon": "./media/process.svg",
+				  "contextualTitle": "Package Explorer"
+				}
+			  ],
+			  "explorer": [
+				{
+				  "id": "nodeDependencies",
+				  "name": "Node Dependencies"
+				},
+				{
+					"id": "taskOutline",
+					"name": "Morphosis"
+				}
 			]
 		},
+
 		"commands": [
 			{
 				"command": "taskOutline.executeTask",
 				"title": "Execute"
 			},
-
 			{
 				"command": "harvest-vscode.punchTime",
 				"title": "Harvest: Punch Time"

@@ -7,6 +7,10 @@ import GetJiraIssues from '../UseCases/Commands/GetJiraIssues'
 class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   onDidChangeTreeData?: vscode.Event<TreeItem|null|undefined>|undefined;
 
+  private _onDidChangeTreeData: vscode.EventEmitter<TreeItem|null|undefined> = new vscode.EventEmitter<TreeItem|null|undefined>();
+
+ 
+
   data: TreeItem[];
 
   constructor() {
@@ -17,6 +21,13 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
           'BMW', [new TreeItem('320'), new TreeItem('X3'), new TreeItem('X5')])
     ])];
   }
+
+
+  refresh(data: TreeItem): void {
+    this._onDidChangeTreeData.fire(data);
+  }
+  
+
 
   getTreeItem(element: TreeItem): vscode.TreeItem|Thenable<vscode.TreeItem> {
     return element;
@@ -114,10 +125,19 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     }
     return element.children;
   }
+
+
+
+
 }
 
 class TreeItem extends vscode.TreeItem {
   children: TreeItem[]|undefined;
+
+  command = {
+    "title": "Show Test",
+    "command": "harvest-vscode.Test",
+  } 
 
   constructor(label: string, children?: TreeItem[]) {
     super(
@@ -127,5 +147,8 @@ class TreeItem extends vscode.TreeItem {
     this.children = children;
   }
 }
+
+
+
 
  export default TreeDataProvider
