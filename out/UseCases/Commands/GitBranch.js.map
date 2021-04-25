@@ -1,0 +1,1 @@
+{"version":3,"file":"GitBranch.js","sourceRoot":"","sources":["../../../src/UseCases/Commands/GitBranch.ts"],"names":[],"mappings":";;;;;;;;;;;AAAA,iCAAiC;AAIjC,SAAS,SAAS,CAAE,OAAgC;IAClD,OAAO,MAAM,CAAC,QAAQ,CAAC,eAAe,CAAC,0BAA0B,EAAE,GAAS,EAAE;QAE5E,iEAAiE;QACjE,uCAAuC;IAGzC,CAAC,CAAA,CAAC,CAAA;AACJ,CAAC;AAGD,kBAAe,SAAS,CAAA"}

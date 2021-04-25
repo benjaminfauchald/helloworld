@@ -1,0 +1,1 @@
+{"version":3,"file":"GitEmail.js","sourceRoot":"","sources":["../../../src/UseCases/Commands/GitEmail.ts"],"names":[],"mappings":";;;;;;;;;;;AAAA,iCAAiC;AAGjC,SAAS,QAAQ,CAAE,OAAgC;IACjD,OAAO,MAAM,CAAC,QAAQ,CAAC,eAAe,CAAC,yBAAyB,EAAE,GAAS,EAAE;IAK7E,CAAC,CAAA,CAAC,CAAA;AACJ,CAAC;AAGD,kBAAe,QAAQ,CAAA"}
