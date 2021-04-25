@@ -22,15 +22,30 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+
 		"views": {
             "explorer": [
                 {
-                    "id": "exampleView",
-                    "name": "exampleView"
+                    "id": "taskOutline",
+                    "name": "Morphosis"
                 }
             ]
         },
+		"viewsContainers": {
+			"activitybar": [
+				{
+				"id" : "harvest-vscode",
+				"title": "Morphosis",
+				"icon": "./media/process.png"
+				} 
+			]
+		},
 		"commands": [
+			{
+				"command": "taskOutline.executeTask",
+				"title": "Execute"
+			},
+
 			{
 				"command": "harvest-vscode.punchTime",
 				"title": "Harvest: Punch Time"

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import axios from 'axios'
 import Jira from '../../Entities/Jira'
-
+import TreeDataProvider from '../../lib/TreeDataProvider'
 
 
 function JiraTest (context: vscode.ExtensionContext): vscode.Disposable {
@@ -50,7 +50,8 @@ function JiraTest (context: vscode.ExtensionContext): vscode.Disposable {
       console.log(data.issues[i].key);
     }
 
- 
+
+
     //console.log(issuesResponse.data)
     vscode.window.showInformationMessage(`We got something, ${data.total} issues`)
 
