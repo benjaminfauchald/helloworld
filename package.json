@@ -22,23 +22,24 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+
+		"views": {
+            "explorer": [
+                {
+                    "id": "taskOutline",
+                    "name": "Morphosis"
+                }
+            ]
+        },
 		"viewsContainers": {
 			"activitybar": [
 				{
 				"id" : "harvest-vscode",
 				"title": "Morphosis",
-				"icon": "./media/morphosis_logo.svg"
-				}
+				"icon": "./media/process.png"
+				} 
 			]
 		},
-		"views": {
-            "explorer": [
-                {
-                    "id": "taskOutline",
-                    "name": "TaskRunner"
-                }
-            ]
-        },
 		"commands": [
 			{
 				"command": "taskOutline.executeTask",

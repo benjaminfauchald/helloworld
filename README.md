@@ -29,7 +29,9 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Cannot get async API calls to work crsoss modules, tis causes a mess and not clean code. Why why why. WIN!
+- Authentications needs to get done properly, now it is hardcoded with my user
+- Authentication for JIRA needs to be properly base64'd, now its just using the proper postman one
 
 ## Release Notes
 

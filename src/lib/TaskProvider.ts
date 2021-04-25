@@ -26,17 +26,17 @@ export class TaskProvider implements vscode.TreeDataProvider<TreeTask> {
 
 
         console.log(GetJiraIssues())
-        console.log(JiraTest())
+
         
 
 
-        let tasks = ["mps10","mps12","mps150","mps13","mps1550"]
+        let tasks = ["mps10","mps12","mps150","mps13","mps155555"]
 
         let treeTasks: TreeTask[] = [];
 
         if (tasks.length !== 0) {
           for (var i = 0; i < tasks.length; i++ ) {                             
-            treeTasks[i] = new TreeTask(tasks[i], tasks[i], vscode.TreeItemCollapsibleState.None, { 
+            treeTasks[i] = new TreeTask(tasks[i], tasks[i], vscode.TreeItemCollapsibleState.Collapsed, { 
                   command: 'taskOutline.executeTask', 
                   title: "Execute", 
                   arguments: [tasks[i], ]

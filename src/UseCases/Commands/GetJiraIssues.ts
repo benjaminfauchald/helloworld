@@ -29,7 +29,7 @@ const GetJiraIssues = async (): Promise<any> => {
     }
 
   console.log `ID: ${issue.id}`
-  console.log `Key: ${issue.key}`
+  console.log `Key: ${issue.issueKey}`
  
 
 //
