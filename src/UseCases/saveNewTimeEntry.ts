@@ -1,14 +1,16 @@
 import axios from 'axios'
 import Harvest from '../Entities/Harvest'
 import TimeEntryInterface from '../Entities/Interfaces/TimeEntryInterface'
+import ExternalReferenceInterface from '../Entities/Interfaces/ExternalReferenceInterface';
 
 const saveNewTimeEntry = async (timeEntry: TimeEntryInterface): Promise<TimeEntryInterface> => {
   const harvest = new Harvest()
-  
+
   const body = {
     project_id: timeEntry.projectId,
     task_id: timeEntry.taskId,
     spent_date: timeEntry.date,
+    external_reference: timeEntry.external_reference,
     notes: timeEntry.notes
   }
 
@@ -29,6 +31,7 @@ const saveNewTimeEntry = async (timeEntry: TimeEntryInterface): Promise<TimeEntr
     date: timeEntryResponse.data.spent_date,
     taskId: timeEntryResponse.data.task.id,
     notes: timeEntryResponse.data.notes,
+    external_reference: timeEntryResponse.data.newExternalReference,
     isRunning: timeEntryResponse.data.is_running
   }
 

@@ -19,6 +19,7 @@ import ProjectInterface from "./Entities/Interfaces/ProjectInterface"
 import UserInterface from './Entities/Interfaces/UserInterface';
 import TaskInterface from './Entities/Interfaces/TaskInterface';
 import TimeEntryInterface from './Entities/Interfaces/TimeEntryInterface';
+import ExternalReferenceInterface from './Entities/Interfaces/ExternalReferenceInterface';
 
 import Project from "./Entities/Project"
 
@@ -67,13 +68,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		if(!item) return
 
+		const timeEntryNote: string = item.label!.toString()
 		const issueCode: string = item.label!.toString().split(' - ')[0]
-		const ProjectCode: string = item.label!.toString().split(' - ')[0].split('-')[0] || ''
-//		const timeEntryNote: string = item.label!.toString()
+		const projectCode: string = item.label!.toString().split(' - ')[0].split('-')[0] || ''
 
 		console.clear() 
 		console.log(item.label);
-		console.log(ProjectCode);
+		console.log(projectCode);
 
 	
 
@@ -103,17 +104,17 @@ export async function activate(context: vscode.ExtensionContext) {
 		projectCollectionMatched=[]
 		projectCollection.elements.map((p: Project) => {
 
-			if (ProjectCode === p.code){
+			if (projectCode === p.code){
 				match=true
 				projectCollectionMatched.push(p)
-				console.log(`Jira ProjectCode ${ProjectCode} matches Harvest ProjectCode: ${p.code}`)
+				console.log(`Jira ProjectCode ${projectCode} matches Harvest ProjectCode: ${p.code}`)
 			}
 
 		})
 
 		//No match? Then tell user we cannot log until we add the jira code to the harvest project
 		if (!match) {
-			console.log(`Jira ProjectCode ${ProjectCode} does not have a matching Harvest ProjectCode.`)
+			console.log(`Jira ProjectCode ${projectCode} does not have a matching Harvest ProjectCode.`)
 			return
 		}
 
@@ -122,10 +123,10 @@ export async function activate(context: vscode.ExtensionContext) {
 			console.clear
 			console.log(`projectCollectionMatched:\n `)
 			
-			let ProjectMatchedNames:any []
-			ProjectMatchedNames = []
+			let projectMatchedNames:any []
+			projectMatchedNames = []
 			projectCollectionMatched.map((p: Project) => {
-				ProjectMatchedNames.push(p.name)
+				projectMatchedNames.push(p.name)
 				console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
 					p.tasks.map((t: TaskInterface) => {
 						console.log(`\t\tname:${t.name}`)
@@ -135,12 +136,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			
 			vscode.window
-				.showInformationMessage('Please select project to log to', ...ProjectMatchedNames)
+				.showInformationMessage('Please select project to log to', ...projectMatchedNames)
 				.then(selection => {
 					console.log(selection);
 
-					let TaskMatchedNames:any []
-					TaskMatchedNames = []
+					let taskMatchedNames:any []
+					let taskName:any
+
+					taskMatchedNames = []
 
 					projectCollectionMatched.map((p: Project) => {
 						if (p.name===selection){
@@ -153,18 +156,19 @@ export async function activate(context: vscode.ExtensionContext) {
 
 								// this is downright dirty, we should make a web view with dropdown, but i dont have time. 
 								
+								
 								if (!t.name.indexOf("Development"))
 								{
-									let taskName = t.name
+									taskName = t.name
 									taskName = taskName.replace("Development", "")
 									taskName = taskName.replace(" - ", "")				// just in case someone forgets this formatting
-									TaskMatchedNames.push(taskName)
+									taskMatchedNames.push(taskName)
 								}
 							})	
 
 
 							vscode.window
-							.showInformationMessage('Please select task to log to:', ...TaskMatchedNames)
+							.showInformationMessage('Please select task to log to:', ...taskMatchedNames)
 							.then(selection => {
 								console.log(selection);
 
@@ -177,21 +181,29 @@ export async function activate(context: vscode.ExtensionContext) {
 
 										// finally we log our entry!
 
-										// Hack link to jira?
-										const timeEntryNote = `https://morphosis.atlassian.net/secure/RapidBoard.jspa?rapidView=126&projectKey=${ProjectCode}&modal=detail&selectedIssue=${issueCode}`
 
-										const newTimeEntry: TimeEntryInterface = {
+			
+										let newExternalReference: ExternalReferenceInterface = {
+											id: t!.id,
+											group_id: t!.id,
+											permalink:  "https://morphosis.atlassian.net/secure/RapidBoard.jspa?rapidView=144&projectKey=${projectCode}&modal=detail&selectedIssue=${issueCode}",
+										}
+
+
+										let newTimeEntry: TimeEntryInterface = {
 											projectId: p!.id,
 											taskId: t!.id,
 											date: new Date().toISOString(),
-											notes: timeEntryNote
-
+											notes: timeEntryNote,
+											external_reference: newExternalReference
 										}
 
-										let timeEntryMessage = `\nLogging "${t!.name}" for "${issueCode}"`
+
+
+										let timeEntryMessage = `\nLogging "${t.name.replace("Development - ", "")}" ${t.id} for "${issueCode}"`
 										await saveNewTimeEntry(newTimeEntry)
 
-										console.log (timeEntryMessage)
+
 										vscode.window.showInformationMessage(timeEntryMessage)
 
 										await context.globalState.update('currentTaskId', p!.id)

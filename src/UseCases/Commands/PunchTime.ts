@@ -1,7 +1,9 @@
 import * as vscode from "vscode";
 import CurrentTimeEntry from "../../Entities/CurrentTimeEntry";
 import TaskInterface from "../../Entities/Interfaces/TaskInterface";
-import TimeEntryInterface from "../../Entities/Interfaces/TimeEntryInterface";
+import TimeEntryInterface from '../../Entities/Interfaces/TimeEntryInterface';
+import ExternalReferenceInterface from '../../Entities/Interfaces/ExternalReferenceInterface';
+
 import Project from "../../Entities/Project";
 import ProjectCollection from "../../Entities/ProjectCollection";
 import saveNewTimeEntry from "../saveNewTimeEntry";
@@ -63,10 +65,23 @@ function PunchTime (context: vscode.ExtensionContext): vscode.Disposable {
       return
     }
 
+
+    let externalReferences: ExternalReferenceInterface[]
+    externalReferences= []
+
+    let newExternalReference: ExternalReferenceInterface = {
+      id: 1,
+      group_id: 1,
+      permalink:  "https://morphosis.atlassian.net/secure/RapidBoard.jspa?rapidView=144&projectKey=${projectCode}&modal=detail&selectedIssue=${issueCode}",
+    }
+
+    externalReferences.push(newExternalReference)
+
     const newTimeEntry: TimeEntryInterface = {
       projectId: selectedProject!.id,
       taskId: selectedTask!.id,
       date: new Date().toISOString(),
+      external_reference: newExternalReference,
       notes: notes
     }
 
