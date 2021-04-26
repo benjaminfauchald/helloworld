@@ -16,7 +16,7 @@ async function Config(config: string, cmd: string, context: vscode.ExtensionCont
            return;
        }
        console.log(`stdout: ${stdout}`)
-       context.globalState.update(config,stdout)
+       context.globalState.update(config,stdout.trim())
        console.log(`${config}: ${context.globalState.get(config)}`)
     });
     

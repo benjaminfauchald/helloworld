@@ -1,14 +1,33 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
+import axios from 'axios'
 
 import Config from './UseCases/Commands/Config'
 import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
+import SetupHarvest from './UseCases/SetupHarvest'
+
 import JiraTest from './UseCases/Commands/JiraTest'
-import Hello from './UseCases/Commands/Hello'
-import NodeDependenciesProvider from './lib/NodeDependenciesProvider'
-import TreeDataProvider from './lib/TreeDataProvider'
 import GetJiraIssues from './UseCases/Commands/GetJiraIssues'
+
+import Hello from './UseCases/Commands/Hello'
+import TreeDataProvider from './lib/TreeDataProvider'
+import NodeDependenciesProvider from './lib/NodeDependenciesProvider'
+
+import Harvest from "./Entities/Harvest"
+import ProjectInterface from "./Entities/Interfaces/ProjectInterface"
+import UserInterface from './Entities/Interfaces/UserInterface';
+import Project from "./Entities/Project"
+import ProjectCollection from "./Entities/ProjectCollection"
+import User from "./Entities/User"
+import getProjectsAssignments from "./UseCases/getProjectsAssignments"
+import getUser from "./UseCases/getUser"
+
+
+
+
+
+
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -26,62 +45,76 @@ export async function activate(context: vscode.ExtensionContext) {
 	Config("FRESHTEAM_API_KEY","printenv FRESHTEAM_API_KEY",context)
 	Config("SLACK_TICKET_HOOK_PRODUCTION","printenv SLACK_TICKET_HOOK_PRODUCTION",context)
 
+	// Logging into harvest
+	SetUserAuthentication(context)
+	SetupHarvest(context)
+
+
+
+
+
 
 	// Getting Jira Issues
 	JiraTest
 
 
 
-	
-
-	// Adding Treeview
-	let message = ""
-	let root_path = ""
-	if(vscode.workspace.workspaceFolders !== undefined) {
-		let wf = vscode.workspace.workspaceFolders[0].uri.path ;
-		let f = vscode.workspace.workspaceFolders[0].uri.fsPath ; 
-	
-		let root_path = f
-
-		let message = `YOUR-EXTENSION: folder: ${wf} - ${f}`
-		vscode.window.showInformationMessage(message);
-	} 
-	else {
-		message = "YOUR-EXTENSION: Working folder not found, open a folder an try again" ;
-	
-		vscode.window.showErrorMessage(message);
-	}
-
-	vscode.window.registerTreeDataProvider('nodeDependencies',new NodeDependenciesProvider(root_path));
+		// Adding Jira Treeview
 	vscode.window.registerTreeDataProvider('taskOutline', new TreeDataProvider());
 
-
-
-
-
-	// other code
-	vscode.commands.registerCommand('taskOutline.deleteEntry', async () => {
-		console.log("Deleting entry")
-		vscode.window.showErrorMessage('Deleting entry')
-	});
-	//vscode.commands.registerCommand('taskOutline.viewInVisualizer', (node: Dependency) => viewInVisualizer(node));
-	
-
 	// Trying to set command on tree view
-	vscode.commands.registerCommand('harvest-vscode.Test', Hello(context))
 
+
+	vscode.commands.registerCommand("taskOutline.selectNode", async (item:vscode.TreeItem) => {
+		console.clear() 
+		console.log(item.label);
+		console.log(item.label!.toString().split('/')[0]);
+
+
+		// vscode.window
+		// 	.showInformationMessage('hello', ...['test', 'taco', 'cheeseburger'])
+		// 	.then(selection => {
+		// 		console.log(selection);
+		// 	});
+
+		let me:any = await getUser() 
+		if (!me.email) return
+
+		console.log(`that was easy${me.email}`)
+		console.log(`that was easy${me.firstName}`)
+
+
+
+		let projectCollection = new ProjectCollection()
+		const isHarvestSetup = await SetupHarvest(context)
+		if (!isHarvestSetup) return
+		
+		const projectNames = projectCollection.elements.map((p: Project) => {
+			return p.name
+		})
+
+		//console.log(`projectNames ${projectNames}`);
+
+
+		// vscode.window.showQuickPick(projectNames, {
+		// 	ignoreFocusOut: true,
+		// 	placeHolder: 'Choose a Project'
+		// })
+
+
+
+	})
 
 
 	// This sets the command in the statusbar
 	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
 	statusbar.text = 'Morphois'
-	statusbar.command = 'harvest-vscode.JiraTest'
+//	statusbar.command = 'harvest-vscode.login'
 	statusbar.show()
 
 	// The command has been defined in the package.json file
 
 	const commands: vscode.Disposable[] = [
-		SetUserAuthentication(context),
 		JiraTest(context)		
 	]
 

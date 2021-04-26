@@ -3,9 +3,12 @@ import axios from 'axios'
 import Jira from '../Entities/Jira'
 import JiraIssueInterface from '../Entities/Interfaces/JiraIssueInterface'
 import GetJiraIssues from '../UseCases/Commands/GetJiraIssues'
+import { strict } from "node:assert"
 
 class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
-  onDidChangeTreeData?: vscode.Event<TreeItem|null|undefined>|undefined;
+
+ 
+
 
   private _onDidChangeTreeData: vscode.EventEmitter<TreeItem|null|undefined> = new vscode.EventEmitter<TreeItem|null|undefined>();
 
@@ -14,12 +17,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   data: TreeItem[];
 
   constructor() {
-    this.data = [new TreeItem('cars', [
-      new TreeItem(
-          'Ford', [new TreeItem('Fiesta'), new TreeItem('Focus'), new TreeItem('Mustang')]),
-      new TreeItem(
-          'BMW', [new TreeItem('320'), new TreeItem('X3'), new TreeItem('X5')])
-    ])];
+    this.data = [];
   }
 
 
@@ -27,8 +25,6 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     this._onDidChangeTreeData.fire(data);
   }
   
-
-
   getTreeItem(element: TreeItem): vscode.TreeItem|Thenable<vscode.TreeItem> {
     return element;
   }
@@ -74,7 +70,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 
         for (i = 0; i < data.issues.length; i++) {
           key = data?.issues[i]?.key
-          summary = data?.issues[i]?.fields?.summary
+          summary = data?.issues[i]?.fields?.summary || ''
            
           console.log(key)
           console.log(summary)
@@ -90,27 +86,23 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
           }
 
 
+          let jiraTreeItem = new TreeItem(jiraIssue)
+
+          jiraTreeItem.command = {
+            command: "taskOutline.selectNode",
+            title: "Select Node",
+            arguments: [jiraTreeItem]
+          };  
          
-          jiraIssues.push(new TreeItem(jiraIssue))
+          jiraIssues.push(jiraTreeItem)
 
         }
 
-
-        console.log(await userResponse?.data)
         return jiraIssues
       }
 
 
 
-      console.log(GetJiraIssues())
-
-
-      // let my_data = [new TreeItem('BARS', [
-      //   new TreeItem(
-      //       'Ford', [new TreeItem('Fiesta'), new TreeItem('Focus'), new TreeItem('Mustang')]),
-      //   new TreeItem(
-      //       'BMW', [new TreeItem('320'), new TreeItem('X3'), new TreeItem('X5')])
-      // ])];
 
       let my_data = GetJiraIssues() 
       if (my_data === undefined)
@@ -131,17 +123,14 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 
 }
 
+
 class TreeItem extends vscode.TreeItem {
   children: TreeItem[]|undefined;
 
-  command = {
-    "title": "Show Test",
-    "command": "harvest-vscode.Test",
-  } 
-
-
-
-
+  // command = {
+  //   "title": "Show Test",
+  //   "command": "harvest-vscode.Hello('`${TreeItem.name}`')",
+  // } 
 
   constructor(label: string, children?: TreeItem[]) {
     super(
