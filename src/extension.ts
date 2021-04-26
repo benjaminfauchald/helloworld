@@ -25,6 +25,7 @@ import ProjectCollection from "./Entities/ProjectCollection"
 import User from "./Entities/User"
 import getProjectsAssignments from "./UseCases/getProjectsAssignments"
 import getUser from "./UseCases/getUser"
+import { MessageOptions } from 'child_process'
 
 
 
@@ -49,8 +50,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	Config("SLACK_TICKET_HOOK_PRODUCTION","printenv SLACK_TICKET_HOOK_PRODUCTION",context)
 
 	// Logging into harvest
-	SetUserAuthentication(context)
-	SetupHarvest(context)
+	await SetUserAuthentication(context)
+	await SetupHarvest(context)
 
 	// Getting Jira Issues
 	JiraTest
@@ -82,17 +83,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		// console.log(`For Khun ${me.firstName}`)
 
 
-
-		let projectCollection = new ProjectCollection()
 		const isHarvestSetup = await SetupHarvest(context)
 		if (!isHarvestSetup) return
 
+		// Getting all projects and matching if we have a match with jira projec code and harvest code
+		let projectCollection = new ProjectCollection()
 		
 		let match:boolean
 		match=false
 
-
-//		let projectCollectionMatched = new ProjectCollection()
 		let projectCollectionMatched:Project []
 		projectCollectionMatched=[]
 		projectCollection.elements.map((p: Project) => {
@@ -111,31 +110,77 @@ export async function activate(context: vscode.ExtensionContext) {
 			return
 		}
 
-		//We found a matching Jira and Harvest project, but there could be several harvest projects...
-		console.log(`projectCollectionMatched:\n `)
-		
-		projectCollectionMatched.map((p: Project) => {
-			console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
-				p.tasks.map((t: TaskInterface) => {
-					console.log(`\t\tname:${t.name}`)
+
+			//We found a matching Jira and Harvest project, but there could be several harvest projects...
+			console.clear
+			console.log(`projectCollectionMatched:\n `)
+			
+			let ProjectMatchedNames:any []
+			ProjectMatchedNames = []
+			projectCollectionMatched.map((p: Project) => {
+				ProjectMatchedNames.push(p.name)
+				console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
+					p.tasks.map((t: TaskInterface) => {
+						console.log(`\t\tname:${t.name}`)
+					})
+			})
+
+
+			
+			vscode.window
+				.showInformationMessage('Please select project to log to', ...ProjectMatchedNames)
+				.then(selection => {
+					console.log(selection);
+
+					let TaskMatchedNames:any []
+					TaskMatchedNames = []
+
+					projectCollectionMatched.map((p: Project) => {
+						if (p.name===selection){
+							console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
+							p.tasks.map((t: TaskInterface) => {
+								console.log(`\t\tname:${t.name}`)
+
+								// Only show developer tasks as only devs use vsCode. 
+								// All dev tasks are marked with development in the start of the task name
+
+								// this is downright dirty, we should make a web view with dropdown, but i dont have time. 
+								
+								if (!t.name.indexOf("Development"))
+								{
+									let taskName = t.name
+									taskName = taskName.replace("Development", "")
+									taskName = taskName.replace(" - ", "")				// just in case someone forgets this formatting
+									TaskMatchedNames.push(taskName)
+								}
+							})	
+
+
+							vscode.window
+							.showInformationMessage('Please select task to log to:', ...TaskMatchedNames)
+							.then(selection => {
+								console.log(selection);
+
+								p.tasks.map((t: TaskInterface) => {
+									console.log(t.name.indexOf(selection))
+									if (t.name.indexOf(selection) != -1)
+									{
+										console.log(`Logging to ${t.name} id: ${t.id}`)
+									}
+								})
+
+
+
+
+
+
+							}
+
+						)}
+					
+					});
 				})
-		})
-
-
-		// const projectNames = projectCollection.elements.map((p: Project) => {
-		// 	return p.name
-		// })
-
-		//console.log(`projectNames ${projectNames}`);
-
-
-		// vscode.window.showQuickPick(projectNames, {
-		// 	ignoreFocusOut: true,
-		// 	placeHolder: 'Choose a Project'
-		// })
-
-
-
+			
 	})
 
 
