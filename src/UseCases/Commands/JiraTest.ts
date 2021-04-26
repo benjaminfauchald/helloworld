@@ -40,7 +40,7 @@ function JiraTest (context: vscode.ExtensionContext): vscode.Disposable {
       )
     } catch (err) {
       console.log(err)
-      vscode.window.showErrorMessage('Issue stoping timer with Harvest.')
+        vscode.window.showErrorMessage('Issue getting Jira issues :P ')
       return
     }
 

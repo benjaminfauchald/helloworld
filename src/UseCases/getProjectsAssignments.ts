@@ -13,6 +13,7 @@ const getProjectsAssignments = async (): Promise<ProjectInterface[]> => {
       return {
         id: p.project.id,
         name: p.project.name,
+        code: p.project.code,
         tasks: p.task_assignments.map((t: any) => {
           return {
             id: t.task.id,

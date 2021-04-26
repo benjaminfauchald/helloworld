@@ -17,7 +17,10 @@ import NodeDependenciesProvider from './lib/NodeDependenciesProvider'
 import Harvest from "./Entities/Harvest"
 import ProjectInterface from "./Entities/Interfaces/ProjectInterface"
 import UserInterface from './Entities/Interfaces/UserInterface';
+import TaskInterface from './Entities/Interfaces/TaskInterface';
+
 import Project from "./Entities/Project"
+
 import ProjectCollection from "./Entities/ProjectCollection"
 import User from "./Entities/User"
 import getProjectsAssignments from "./UseCases/getProjectsAssignments"
@@ -49,27 +52,22 @@ export async function activate(context: vscode.ExtensionContext) {
 	SetUserAuthentication(context)
 	SetupHarvest(context)
 
-
-
-
-
-
 	// Getting Jira Issues
 	JiraTest
 
-
-
-		// Adding Jira Treeview
+	// Adding Jira Treeview
 	vscode.window.registerTreeDataProvider('taskOutline', new TreeDataProvider());
 
 	// Trying to set command on tree view
-
-
 	vscode.commands.registerCommand("taskOutline.selectNode", async (item:vscode.TreeItem) => {
+
+		if(!item) return
+
+		const ProjectCode: string = item.label!.toString().split(' - ')[0].split('-')[0] || ''
+
 		console.clear() 
 		console.log(item.label);
-		console.log(item.label!.toString().split('/')[0]);
-
+		console.log(ProjectCode);
 
 		// vscode.window
 		// 	.showInformationMessage('hello', ...['test', 'taco', 'cheeseburger'])
@@ -77,21 +75,56 @@ export async function activate(context: vscode.ExtensionContext) {
 		// 		console.log(selection);
 		// 	});
 
-		let me:any = await getUser() 
-		if (!me.email) return
+		// let me:any = await getUser() 
+		// if (!me.email) return
 
-		console.log(`that was easy${me.email}`)
-		console.log(`that was easy${me.firstName}`)
+		// console.log(`Found ${me.email}`)
+		// console.log(`For Khun ${me.firstName}`)
 
 
 
 		let projectCollection = new ProjectCollection()
 		const isHarvestSetup = await SetupHarvest(context)
 		if (!isHarvestSetup) return
+
 		
-		const projectNames = projectCollection.elements.map((p: Project) => {
-			return p.name
+		let match:boolean
+		match=false
+
+
+//		let projectCollectionMatched = new ProjectCollection()
+		let projectCollectionMatched:Project []
+		projectCollectionMatched=[]
+		projectCollection.elements.map((p: Project) => {
+
+			if (ProjectCode === p.code){
+				match=true
+				projectCollectionMatched.push(p)
+				console.log(`Jira ProjectCode ${ProjectCode} matches Harvest ProjectCode: ${p.code}`)
+			}
+
 		})
+
+		//No match? Then tell user we cannot log until we add the jira code to the harvest project
+		if (!match) {
+			console.log(`Jira ProjectCode ${ProjectCode} does not have a matching Harvest ProjectCode.`)
+			return
+		}
+
+		//We found a matching Jira and Harvest project, but there could be several harvest projects...
+		console.log(`projectCollectionMatched:\n `)
+		
+		projectCollectionMatched.map((p: Project) => {
+			console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
+				p.tasks.map((t: TaskInterface) => {
+					console.log(`\t\tname:${t.name}`)
+				})
+		})
+
+
+		// const projectNames = projectCollection.elements.map((p: Project) => {
+		// 	return p.name
+		// })
 
 		//console.log(`projectNames ${projectNames}`);
 
