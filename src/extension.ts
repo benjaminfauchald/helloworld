@@ -18,6 +18,7 @@ import Harvest from "./Entities/Harvest"
 import ProjectInterface from "./Entities/Interfaces/ProjectInterface"
 import UserInterface from './Entities/Interfaces/UserInterface';
 import TaskInterface from './Entities/Interfaces/TaskInterface';
+import TimeEntryInterface from './Entities/Interfaces/TimeEntryInterface';
 
 import Project from "./Entities/Project"
 
@@ -25,6 +26,8 @@ import ProjectCollection from "./Entities/ProjectCollection"
 import User from "./Entities/User"
 import getProjectsAssignments from "./UseCases/getProjectsAssignments"
 import getUser from "./UseCases/getUser"
+import saveNewTimeEntry from "./UseCases/saveNewTimeEntry" 
+
 import { MessageOptions } from 'child_process'
 
 
@@ -64,11 +67,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		if(!item) return
 
+		const issueCode: string = item.label!.toString().split(' - ')[0]
 		const ProjectCode: string = item.label!.toString().split(' - ')[0].split('-')[0] || ''
+//		const timeEntryNote: string = item.label!.toString()
 
 		console.clear() 
 		console.log(item.label);
 		console.log(ProjectCode);
+
+	
 
 		// vscode.window
 		// 	.showInformationMessage('hello', ...['test', 'taco', 'cheeseburger'])
@@ -161,11 +168,42 @@ export async function activate(context: vscode.ExtensionContext) {
 							.then(selection => {
 								console.log(selection);
 
-								p.tasks.map((t: TaskInterface) => {
+								// Lol i gotta mark the map anon function as async to have this thing properly await....
+								p.tasks.map( async (t: TaskInterface) => {
 									console.log(t.name.indexOf(selection))
 									if (t.name.indexOf(selection) != -1)
 									{
 										console.log(`Logging to ${t.name} id: ${t.id}`)
+
+										// finally we log our entry!
+
+										// Hack link to jira?
+										const timeEntryNote = `https://morphosis.atlassian.net/secure/RapidBoard.jspa?rapidView=126&projectKey=${ProjectCode}&modal=detail&selectedIssue=${issueCode}`
+
+										const newTimeEntry: TimeEntryInterface = {
+											projectId: p!.id,
+											taskId: t!.id,
+											date: new Date().toISOString(),
+											notes: timeEntryNote
+
+										}
+
+										let timeEntryMessage = `\nLogging "${t!.name}" for "${issueCode}"`
+										await saveNewTimeEntry(newTimeEntry)
+
+										console.log (timeEntryMessage)
+										vscode.window.showInformationMessage(timeEntryMessage)
+
+										await context.globalState.update('currentTaskId', p!.id)
+
+										
+
+
+
+
+
+
+
 									}
 								})
 
