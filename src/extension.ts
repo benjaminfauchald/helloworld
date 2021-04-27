@@ -162,7 +162,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			if (p.name===selectedProject){
 				console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
 				p.tasks.map((t: TaskInterface) => {
-			  		console.log(`\t\tname:${t.name}`)
+			 		console.log(`\t\tname:${t.name}`)
 
 					// Only show developer tasks as only the devs use vsCode. 
 					// All dev tasks are marked with "Development - ! in the start of the task name in harvest
@@ -216,6 +216,7 @@ export async function activate(context: vscode.ExtensionContext) {
 							let timeEntryMessage = `\nLogging "${t.name.replace("Development - ", "")}" ${t.id} for "${issueCode}" in "${p.name}"`
 							await saveNewTimeEntry(newTimeEntry)
 							await context.globalState.update('currentTaskId', p!.id)
+							menuTimer(issueCode)
 							vscode.window.showInformationMessage(timeEntryMessage)
 
 						}
@@ -224,14 +225,12 @@ export async function activate(context: vscode.ExtensionContext) {
 				})
 			}
 		})
-	})
 
 
-	// This sets the command in the statusbar
-	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
-	statusbar.text = 'Morphois'
-//	statusbar.command = 'harvest-vscode.login'
-	statusbar.show()
+
+})
+
+
 
 	// The command has been defined in the package.json file
 
@@ -241,6 +240,34 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(...commands)
 }
+
+
+// MISC FUNCTIONS
+
+function menuTimer(issueCode: string){
+	// This sets the command in the statusbar
+	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
+	statusbar.text = 'Morphois'
+//	statusbar.command = 'harvest-vscode.login'
+	
+
+	let timerStart: number
+	timerStart = Date.now()
+	setInterval(() => {
+		let ms:number
+		ms = Date.now() - timerStart;
+		let logger = new Date(Math.floor(ms / 1000) * 1000).toISOString().substr(11, 8)
+
+		let timer = `Timing ${issueCode}  = ${logger}`
+		statusbar.text = timer
+		console.log(timer)
+	}, 1000);
+
+
+
+	statusbar.show()
+}
+
 
 // this method is called when your extension is deactivated
 export function deactivate() {}
