@@ -23,31 +23,17 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-
-		"viewsContainers": {
-			"panel": [
-			  {
-				"id": "package-explorer",
-				"title": "Package Explorer",
-				"icon": "./media/process.svg"
-			  }
-			]
-		  },
-
-
-
-
-
-
-		"views": {
-			  "explorer": [
-				{
-					"id": "taskOutline",
-					"name": "Morphosis"
+		"configuration": {
+			"title": "Git Flow",
+			"properties": {
+				"gitflow.views.feature.showRemoteBranches": {
+					"scope": "application",
+					"description": "Enable/disable show remote branches",
+					"type": "boolean",
+					"default": true
 				}
-			]
+			}
 		},
-
 		"commands": [
 			{
 				"command": "taskOutline.executeTask",
@@ -64,8 +50,194 @@
 			{
 				"command": "harvest-vscode.stopTimer",
 				"title": "Harvest: Stop Timer"
+			},
+			{
+				"command": "gitflow.init",
+				"title": "Init",
+				"category": "Git Flow"
+			},
+			{
+				"command": "gitflow.refresh",
+				"title": "Refresh",
+				"category": "Git Flow",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "gitflow.checkout",
+				"title": "Checkout",
+				"category": "Git Flow"
+			},
+			{
+				"command": "gitflow.feature.start",
+				"title": "Start",
+				"category": "Git Flow",
+				"icon": {
+					"light": "resources/light/add.svg",
+					"dark": "resources/dark/add.svg"
+				}
+			},
+			{
+				"command": "gitflow.release.start",
+				"title": "Start",
+				"category": "Git Flow",
+				"icon": {
+					"light": "resources/light/add.svg",
+					"dark": "resources/dark/add.svg"
+				}
+			},
+			{
+				"command": "gitflow.finish",
+				"title": "Finish",
+				"category": "Git Flow"
+			},
+			{
+				"command": "gitflow.branch.pull",
+				"title": "Pull",
+				"category": "Git Flow"
+			},
+			{
+				"command": "gitflow.branch.delete",
+				"title": "Delete",
+				"category": "Git Flow"
+			},
+			{
+				"command": "gitflow.merge.develop.feature",
+				"title": "Merge `develop` into...",
+				"category": "Git Flow"
+			},
+			{
+				"command": "gitflow.views.feature.filterRemotes",
+				"title": "Filter Remotes Branches",
+				"category": "Git Flow",
+				"icon": {
+					"light": "resources/light/list-filter.svg",
+					"dark": "resources/dark/list-filter.svg"
+				}
 			}
-		]
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "gitflow.checkout",
+					"when": "never"
+				},
+				{
+					"command": "gitflow.feature.start",
+					"when": "never"
+				},
+				{
+					"command": "gitflow.release.start",
+					"when": "never"
+				},
+				{
+					"command": "gitflow.branch.delete",
+					"when": "never"
+				},
+				{
+					"command": "gitflow.branch.pull",
+					"when": "never"
+				},
+				{
+					"command": "gitflow.finish",
+					"when": "never"
+				},
+				{
+					"command": "gitflow.init",
+					"when": "never"
+				},
+				{
+					"command": "gitflow.views.feature.filterRemotes",
+					"when": "never"
+				},
+				{
+					"command": "gitflow.merge.develop.feature",
+					"when": "never"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "gitflow.checkout",
+					"group": "navigation"
+				},
+				{
+					"command": "gitflow.branch.pull",
+					"group": "1@1"
+				},
+				{
+					"command": "gitflow.merge.develop.feature",
+					"when": "view == gitflow.views.feature",
+					"group": "1@2"
+				},
+				{
+					"command": "gitflow.finish",
+					"when": "view != gitflow.views.main",
+					"group": "1@3"
+				},
+				{
+					"command": "gitflow.branch.delete",
+					"when": "view != gitflow.views.main",
+					"group": "7_modification"
+				}
+			],
+			"view/title": [
+				{
+					"command": "gitflow.feature.start",
+					"when": "view == gitflow.views.feature",
+					"group": "navigation@3"
+				},
+				{
+					"command": "gitflow.views.feature.filterRemotes",
+					"when": "view == gitflow.views.feature",
+					"group": "navigation@1"
+				},
+				{
+					"command": "gitflow.release.start",
+					"when": "view == gitflow.views.release",
+					"group": "navigation"
+				},
+				{
+					"command": "gitflow.refresh",
+					"group": "navigation@2"
+				}
+			]
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "gitflow-explorer",
+					"title": "Git Flow",
+					"icon": "media/git-merge.svg"
+				}
+			]
+		},
+		"views": {
+			"explorer": [
+				{
+					"id": "taskOutline",
+					"name": "Morphosis"
+				}
+			],
+			"gitflow-explorer": [
+				{
+					"id": "gitflow.views.main",
+					"name": "Git Flow",
+					"when": "gitflow.initialized"
+				},
+				{
+					"id": "gitflow.views.feature",
+					"name": "Features",
+					"when": "gitflow.initialized"
+				},
+				{
+					"id": "gitflow.views.release",
+					"name": "Releases",
+					"when": "never && gitflow.initialized"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -92,6 +264,7 @@
 		"@types/glob": "^7.1.3",
 		"@types/mocha": "^8.0.0",
 		"@types/node": "^14.0.27",
+		"@types/nodegit": "^0.27.1",
 		"@types/vscode": "^1.49.0",
 		"@typescript-eslint/eslint-plugin": "^3.8.0",
 		"@typescript-eslint/parser": "^3.8.0",
@@ -105,5 +278,8 @@
 	"dependencies": {
 		"axios": "^0.21.1",
 		"vscode": "^0.9.9"
-	}
+	},
+	"extensionDependencies": [
+		"vscode.git"
+	]
 }

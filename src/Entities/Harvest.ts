@@ -26,9 +26,6 @@ class Harvest {
       'Harvest-Account-ID': "${this.accountId}",
       'Authorization': Bearer "${this.accessToken}"
     })`)
-
-    console.log(header)
-
     return {
       'Harvest-Account-ID': this.accountId,
       'Authorization': `Bearer ${this.accessToken}`

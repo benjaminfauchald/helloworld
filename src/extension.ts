@@ -2,47 +2,126 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
 
-import axios from 'axios'
+import { MainTreeViewProvider } from './treeviews/MainTreeViewProvider';
+import { BranchTreeViewProvider } from './treeviews/BranchTreeViewProvider';
+import BranchTreeItem from "./treeviews/BranchTreeItem";
+import GitService from "./services/GitService";
 
-import Config from './UseCases/Commands/Config'
-import SetUserAuthentication from './UseCases/Commands/SetUserAuthentication'
-import SetupHarvest from './UseCases/SetupHarvest'
+import Config from 						'./UseCases/Commands/Config'
+import SetupHarvest from 				'./UseCases/SetupHarvest'
+import StopTimer from 					'./UseCases/Commands/StopTimer'
+import saveNewTimeEntry from 			'./UseCases/saveNewTimeEntry' 
 
-import JiraTest from './UseCases/Commands/JiraTest'
-import GetJiraIssues from './UseCases/Commands/GetJiraIssues'
-import StopTimer from './UseCases/Commands/StopTimer'
+import TaskInterface from 				'./Entities/Interfaces/TaskInterface';
+import TimeEntryInterface from 			'./Entities/Interfaces/TimeEntryInterface';
+import ExternalReferenceInterface from 	'./Entities/Interfaces/ExternalReferenceInterface';
+import Project from 					'./Entities/Project'
+import ProjectCollection from 			'./Entities/ProjectCollection'
 
-import Hello from './UseCases/Commands/Hello'
-import TreeDataProvider from './lib/TreeDataProvider'
-import WordCount from './lib/WordCount'
-import NodeDependenciesProvider from './lib/NodeDependenciesProvider'
+import TreeDataProvider from 			'./lib/TreeDataProvider'
 
-import Harvest from "./Entities/Harvest"
-import ProjectInterface from "./Entities/Interfaces/ProjectInterface"
-import UserInterface from './Entities/Interfaces/UserInterface';
-import TaskInterface from './Entities/Interfaces/TaskInterface';
-import TimeEntryInterface from './Entities/Interfaces/TimeEntryInterface';
-import ExternalReferenceInterface from './Entities/Interfaces/ExternalReferenceInterface';
-
-import Project from "./Entities/Project"
-
-import ProjectCollection from "./Entities/ProjectCollection"
-import User from "./Entities/User"
-import getProjectsAssignments from "./UseCases/getProjectsAssignments"
-import getUser from "./UseCases/getUser"
-import saveNewTimeEntry from "./UseCases/saveNewTimeEntry" 
-
-import { MessageOptions } from 'child_process'
-import { StatusBarItem, StatusBarAlignment } from 'vscode';
-
-
-
-
+//Git extension
 
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
+
+
+
+	const mainTreeViewProvider = new MainTreeViewProvider();
+	vscode.window.registerTreeDataProvider("gitflow.views.main", mainTreeViewProvider);
+
+	const featureTreeViewProvider = new BranchTreeViewProvider("feature");
+	vscode.window.registerTreeDataProvider("gitflow.views.feature", featureTreeViewProvider);
+
+	const releaseTreeViewProvider = new BranchTreeViewProvider("release");
+	vscode.window.registerTreeDataProvider("gitflow.views.release", releaseTreeViewProvider);
+
+	vscode.commands.registerCommand("gitflow.init", () => {
+		console.log("Init");
+	});
+
+	vscode.commands.registerCommand("gitflow.refresh", () => {
+		mainTreeViewProvider.refresh();
+		featureTreeViewProvider.refresh();
+		releaseTreeViewProvider.refresh();
+	});
+	vscode.commands.registerCommand("gitflow.checkout", (item) => {
+		if (item instanceof BranchTreeItem) {
+			if (item.isRemote) {
+				GitService.flowTrack(item.prefix, item.branchName);
+			} else {
+				GitService.checkout(item.branch);
+			}
+
+			return vscode.commands.executeCommand("gitflow.refresh");
+		}
+	});
+	vscode.commands.registerCommand("gitflow.feature.start", () => {
+		vscode.window.showInputBox({
+			placeHolder: "Enter a name to create feature branch"
+		}).then((branch) => {
+			if (branch) {
+				GitService.flowStart("feature", branch);
+				vscode.commands.executeCommand("gitflow.refresh");
+			}
+		});
+	});
+
+	vscode.commands.registerCommand("gitflow.release.start", () => {
+		vscode.window.showInputBox({
+			placeHolder: "Enter a name to create release branch"
+		}).then((branch) => {
+			if (branch) {
+				GitService.flowStart("release", branch);
+				vscode.commands.executeCommand("gitflow.refresh");
+			}
+		});
+	});
+
+	vscode.commands.registerCommand("gitflow.finish", (item) => {
+		if (item instanceof BranchTreeItem && item.prefix === "feature") {
+			GitService.flowFinish(item.prefix, item.branchName);
+			vscode.commands.executeCommand("gitflow.refresh");
+		}
+	});
+
+	vscode.commands.registerCommand("gitflow.branch.delete", (item) => {
+		if (item instanceof BranchTreeItem) {
+			GitService.delete(item.branch, item.isRemote);
+			return vscode.commands.executeCommand("gitflow.refresh");
+		}
+	});
+
+	vscode.commands.registerCommand("gitflow.branch.pull", ( item ) => {
+		if( item instanceof BranchTreeItem ) {
+			GitService.pull(item.branch);
+			return vscode.commands.executeCommand("gitflow.refresh");
+		}
+	});
+
+	vscode.commands.registerCommand("gitflow.views.feature.filterRemotes", () => {
+		const configuration = vscode.workspace.getConfiguration("gitflow");
+		const showRemoteBranches = configuration.get<boolean>("views.feature.showRemoteBranches", true);
+
+		configuration.update("views.feature.showRemoteBranches", !showRemoteBranches, vscode.ConfigurationTarget.Global)
+			.then(() => {
+				vscode.commands.executeCommand("gitflow.refresh");
+			});
+	});
+
+	vscode.commands.registerCommand("gitflow.merge.develop.feature", (item) => {
+		if (item instanceof BranchTreeItem) {
+			GitService.mergeBranch(GitService.flowConfig.branches.develop || "", item.prefix, item.branchName, item.isRemote);
+			vscode.commands.executeCommand("gitflow.refresh");
+		}
+	});
+
+	vscode.commands.executeCommand("setContext", "gitflow.initialized", GitService.isInitialized);
+
+
+
 
 
 	let harvestTimerInterval: any
@@ -51,21 +130,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	statusBar.show()
 
 
-
+	console.log("------GitFlow----------")
+	console.log(`Git.Service.activeBranch: ${GitService.activeBranch}`)
+	console.log(`Git.Service.branches: ${GitService.branches}`)
+	console.log("------GitFlow----------")
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-
-
-
 	context.globalState.update('JIRA_OLD_API_URL','https://morphosis.atlassian.net/rest/agile/1.0/')
-
-
 
 	Config("JIRA_DOMAIN","printenv JIRA_DOMAIN",context)
 	Config("JIRA_USERNAME","git config user.email",context)
 	Config("JIRA_PASSWORD","printenv JIRA_API_KEY",context)
-
 	Config("HARVEST_DOMAIN","printenv HARVEST_DOMAIN",context)
 	Config("HARVEST_ACCESS_TOKEN","printenv HARVEST_ACCESS_TOKEN",context)
 	Config("HARVEST_ACCOUNT_ID","printenv HARVEST_ACCOUNT_ID",context)
@@ -73,16 +149,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	Config("FRESHTEAM_API_KEY","printenv FRESHTEAM_API_KEY",context)
 	Config("SLACK_TICKET_HOOK_PRODUCTION","printenv SLACK_TICKET_HOOK_PRODUCTION",context)
 
-
-
-
 	// Logging into harvest
 	await SetupHarvest(context)
 
-	// Getting Jira Issues
-	// JiraTest
-
-	// Adding Jira Treeview
+	// Adding Jira Treeview with issues
 	vscode.window.registerTreeDataProvider('taskOutline', new TreeDataProvider());
 
 	// Trying to set command on tree view

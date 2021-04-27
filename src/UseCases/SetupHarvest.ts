@@ -13,7 +13,7 @@ async function SetupHarvest (context: vscode.ExtensionContext): Promise<boolean>
   let projectCollection = new ProjectCollection()
   let user = new User()
   
-  console.log("Trying to login")
+  // console.log("Trying to login")
   const accountId: string = context.globalState.get('accountId') || ''
   const accessToken: string = context.globalState.get('accessToken') || ''
   
