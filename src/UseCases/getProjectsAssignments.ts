@@ -34,7 +34,7 @@ const _getManyProjectPagesFromApi = async (harvest: Harvest, nextPageUrl?: strin
   let projectsResponse: any
   try {
     projectsResponse = await axios.get(
-      nextPageUrl || 'https://api.harvestapp.com/v2/users/me/project_assignments',
+      nextPageUrl || 'https://api.harvestapp.com/v2/users/me/project_assignments/',
       { headers : harvest.headers }
     )
 

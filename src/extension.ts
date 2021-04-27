@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
+
 import axios from 'axios'
 
 import Config from './UseCases/Commands/Config'
@@ -9,9 +10,11 @@ import SetupHarvest from './UseCases/SetupHarvest'
 
 import JiraTest from './UseCases/Commands/JiraTest'
 import GetJiraIssues from './UseCases/Commands/GetJiraIssues'
+import StopTimer from './UseCases/Commands/StopTimer'
 
 import Hello from './UseCases/Commands/Hello'
 import TreeDataProvider from './lib/TreeDataProvider'
+import WordCount from './lib/WordCount'
 import NodeDependenciesProvider from './lib/NodeDependenciesProvider'
 
 import Harvest from "./Entities/Harvest"
@@ -30,6 +33,7 @@ import getUser from "./UseCases/getUser"
 import saveNewTimeEntry from "./UseCases/saveNewTimeEntry" 
 
 import { MessageOptions } from 'child_process'
+import { StatusBarItem, StatusBarAlignment } from 'vscode';
 
 
 
@@ -41,11 +45,23 @@ import { MessageOptions } from 'child_process'
 export async function activate(context: vscode.ExtensionContext) {
 
 
+	let harvestTimerInterval: any
+	const statusBar = StatusBar("")
+	statusBar.text = 'Morphois Workflow' 
+	statusBar.show()
+
+
+
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 
+
+
 	context.globalState.update('JIRA_OLD_API_URL','https://morphosis.atlassian.net/rest/agile/1.0/')
+
+
+
 	Config("JIRA_DOMAIN","printenv JIRA_DOMAIN",context)
 	Config("JIRA_USERNAME","git config user.email",context)
 	Config("JIRA_PASSWORD","printenv JIRA_API_KEY",context)
@@ -60,13 +76,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 
-
 	// Logging into harvest
-	await SetUserAuthentication(context)
 	await SetupHarvest(context)
 
 	// Getting Jira Issues
-	JiraTest
+	// JiraTest
 
 	// Adding Jira Treeview
 	vscode.window.registerTreeDataProvider('taskOutline', new TreeDataProvider());
@@ -93,7 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			if (projectCode === p.code){
 				match=true
 				projectCollectionMatched.push(p)
-				console.log(`Jira ProjectCode ${projectCode} matches Harvest ProjectCode: ${p.code}`)
+				//console.log(`Jira ProjectCode ${projectCode} matches Harvest ProjectCode: ${p.code}`)
 			}
 
 		})
@@ -101,7 +115,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		console.log(`projectCollectionMatched.length ${projectCollectionMatched.length}`)
 		//No match? Then tell user we cannot log until we add the jira code to the harvest project
 		if (projectCollectionMatched.length === 0) {
-			console.log()
 
 			const harvestUrl = await context.globalState.get('HARVEST_DOMAIN')
 			await vscode.window
@@ -113,56 +126,42 @@ export async function activate(context: vscode.ExtensionContext) {
 						vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(`https://${harvestUrl}/projects?filter=active`))
 					}
 				})
-
-
-
-
-			//*** SHOULD OPEN HARVEST TO ADD JIRA CODE ***/
 			return
 		}
 
 
 		//We found a matching Jira and Harvest project, but there could be several harvest projects...
-		
 		let projectMatchedNames:any []
 		projectMatchedNames = []
 		projectCollectionMatched.map((p: Project) => {
 			projectMatchedNames.push(p.name)
-			console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
-			p.tasks.map((t: TaskInterface) => {
-				console.log(`\t\tname:${t.name}`)
+				//console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
+				p.tasks.map((t: TaskInterface) => {
 			})
 		})
 
 		var selectedProject: string
-		selectedProject = "--"
+		selectedProject = ""
 
 		if (projectMatchedNames.length > 1){
 			await vscode.window
 				.showInformationMessage('Please select project to log to', ...projectMatchedNames)
 				.then(selection => { 
 				selectedProject = selection
-				console.log(`må velge ${selectedProject}`)
 				})
 		}
 		else {
-			console.log("må ikke velge")
 			selectedProject = projectMatchedNames[0]	
 		}
-		console.log(`Har valgt${selectedProject}`)
 
 		let taskMatchedNames:any []
 		let taskName:any
 		taskMatchedNames = []
 
-		console.clear
-		console.log(`selectedProject ${selectedProject}`)
-
 		projectCollectionMatched.map( async (p: Project) => {
 			if (p.name===selectedProject){
-				console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
+				//console.log(`Harvest ProjectCodes found: ${p.name} - ${p.code}`)
 				p.tasks.map((t: TaskInterface) => {
-			 		console.log(`\t\tname:${t.name}`)
 
 					// Only show developer tasks as only the devs use vsCode. 
 					// All dev tasks are marked with "Development - ! in the start of the task name in harvest
@@ -183,17 +182,14 @@ export async function activate(context: vscode.ExtensionContext) {
 				await vscode.window
 				.showInformationMessage('Please select task to log to:', ...taskMatchedNames)
 				.then(selection => {
-					console.log(selection);
 
 					// Lol i gotta mark the map anon functions as async to have this thing properly await....
 					p.tasks.map( async (t: TaskInterface) => {
-						console.log(t.name.indexOf(selection))
+						//console.log(t.name.indexOf(selection))
 						if (t.name.indexOf(selection) != -1)
 						{
 
-
 							// Now finally we log our entry!
-							
 							let jiraUrl: any 
 							jiraUrl = context.globalState.get('JIRA_OLD_API_URL')
 							jiraUrl = jiraUrl.split('/')[2] 
@@ -214,9 +210,30 @@ export async function activate(context: vscode.ExtensionContext) {
 							}
 
 							let timeEntryMessage = `\nLogging "${t.name.replace("Development - ", "")}" ${t.id} for "${issueCode}" in "${p.name}"`
-							await saveNewTimeEntry(newTimeEntry)
-							await context.globalState.update('currentTaskId', p!.id)
-							menuTimer(issueCode)
+							let timeEntry = saveNewTimeEntry(newTimeEntry)
+							let timeEntryId:any = (await timeEntry!).id
+							await context.globalState.update('currentTaskId', timeEntryId)
+
+
+
+							// This sets the command in the statusbar
+							statusBar.command = 'harvest-vscode.stopTimer'
+
+							//update every second (this should probably be every minute, so it does nto stress people out)
+							let timerStart: number
+							timerStart = Date.now()
+							harvestTimerInterval = setInterval(() => {
+								let ms:number
+								ms = Date.now() - timerStart;
+								let logger = new Date(Math.floor(ms / 1000) * 1000).toISOString().substr(11, 8)
+
+								let timer = `Timing ${issueCode}  = ${logger}`
+								statusBar.text = timer
+							}, 1000);
+
+							console.log(`harvestTimerInterval: ${harvestTimerInterval}`)
+
+							statusBar.show 
 							vscode.window.showInformationMessage(timeEntryMessage)
 
 						}
@@ -228,44 +245,41 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 
-})
+	})
 
+	// REGISTER COMMANDS
 
-
-	// The command has been defined in the package.json file
-
+	// The command has been defined in the package.json file and are to be registered as commands
 	const commands: vscode.Disposable[] = [
-		JiraTest(context)		
+		StopTimer(context,statusBar,harvestTimerInterval)		
 	]
-
 	context.subscriptions.push(...commands)
+
 }
+
+
+
+
+
 
 
 // MISC FUNCTIONS
 
-function menuTimer(issueCode: string){
-	// This sets the command in the statusbar
-	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
-	statusbar.text = 'Morphois'
-//	statusbar.command = 'harvest-vscode.login'
+
+
+
+
+
+function StatusBar(issueCode: string) : vscode.StatusBarItem{
 	
+	const statusbar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
 
-	let timerStart: number
-	timerStart = Date.now()
-	setInterval(() => {
-		let ms:number
-		ms = Date.now() - timerStart;
-		let logger = new Date(Math.floor(ms / 1000) * 1000).toISOString().substr(11, 8)
-
-		let timer = `Timing ${issueCode}  = ${logger}`
-		statusbar.text = timer
-		console.log(timer)
-	}, 1000);
-
-
+	if (issueCode || '' === '') {
+		return(statusbar)
+	}
 
 	statusbar.show()
+	return(statusbar)
 }
 
 

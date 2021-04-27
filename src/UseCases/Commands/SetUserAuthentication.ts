@@ -50,18 +50,11 @@ function SetUserAuthentication (context: vscode.ExtensionContext): vscode.Dispos
       accessToken: accessToken2
     })
 
-    console.log(`accountId: ${accountId2}`)
-    console.log(`accessToken: ${accessToken2}`)
-
-
-
-
 
     const harvest = new Harvest()
     let projectCollection = new ProjectCollection()
     let user = new User()
     
-    console.log("Trying to login")
     const accountId: string = context.globalState.get('accountId') || ''
     const accessToken: string = context.globalState.get('accessToken') || ''
     

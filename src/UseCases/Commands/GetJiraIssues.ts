@@ -28,14 +28,9 @@ const GetJiraIssues = async (): Promise<any> => {
       project: userResponse?.data?.key || ''
     }
 
-  console.log `ID: ${issue.id}`
-  console.log `Key: ${issue.issueKey}`
- 
-
-//
-  console.log(await userResponse?.data)
-
-
+  // console.log `ID: ${issue.id}`
+  // console.log `Key: ${issue.issueKey}`
+  // console.log(await userResponse?.data)
 
 }
 

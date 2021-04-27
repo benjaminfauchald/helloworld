@@ -56,8 +56,8 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
             project: userResponse?.data?.key || ''
           }
 
-        console.log `ID: ${issue.id}`
-        console.log `Key: ${issue.issueKey}`
+        // console.log `ID: ${issue.id}`
+        // console.log `Key: ${issue.issueKey}`
       
         let jiraIssue: string
         let jiraIssues:TreeItem[]; 
@@ -72,17 +72,17 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
           key = data?.issues[i]?.key
           summary = data?.issues[i]?.fields?.summary || ''
            
-          console.log(key)
-          console.log(summary)
+          // console.log(key)
+          // console.log(summary)
 
           //key always has a value, but lets check description
           jiraIssue = `${data?.issues[i]?.key}`
 
           if(summary) {
-            console.log(`I have something for ${key}`);
+            // console.log(`I have something for ${key}`);
             jiraIssue = jiraIssue + " - " + summary
           } else {
-            console.log(`Nothing for ${key} here...`)
+            // console.log(`Nothing for ${key} here...`)
           }
 
 

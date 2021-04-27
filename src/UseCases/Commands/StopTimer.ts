@@ -2,11 +2,20 @@ import * as vscode from "vscode"
 import axios from 'axios'
 import Harvest from "../../Entities/Harvest"
 
-function StopTimer (context: vscode.ExtensionContext): vscode.Disposable {
+function StopTimer (context: vscode.ExtensionContext, statusBar: vscode.StatusBarItem, harvestTimerInterval: any): vscode.Disposable {
   return vscode.commands.registerCommand('harvest-vscode.stopTimer', async () => {
 
-    const accountId: string = context.globalState.get('accountId') || ''
-    const accessToken: string = context.globalState.get('accessToken') || ''
+
+
+    const accountId: string = await context.globalState.get('accountId') || ''
+    const accessToken: string = await context.globalState.get('accessToken') || ''
+    const currentTaskId: string = await context.globalState.get('currentTaskId') || ''
+
+    console.clear
+    console.log(`accountId:${accountId}`)
+    console.log(`accessToken:${accessToken}`)
+    console.log(`currentTaskId:${currentTaskId}`)
+
 
     if (!accountId || !accessToken) {
       vscode.window.showWarningMessage('You are not authenticated with Harvest /n Run the "Harvest: Login Command" first.')
@@ -18,10 +27,9 @@ function StopTimer (context: vscode.ExtensionContext): vscode.Disposable {
       accessToken: accessToken
     })
 
-    const currentTaskId: string = context.globalState.get('currentTaskId') || ''
 
     if (!currentTaskId) {
-      vscode.window.showWarningMessage('There is no current task stored.')
+      vscode.window.showWarningMessage('There is no current task being logged.')
       return
     }
 
@@ -39,7 +47,13 @@ function StopTimer (context: vscode.ExtensionContext): vscode.Disposable {
     }
 
     vscode.window.showInformationMessage('Harvest Timer Stopped')
+
+    console.log(`harvestTimerInterval: ${harvestTimerInterval}`)
+    clearInterval(harvestTimerInterval)
+    statusBar.text ='Harvest Timer Stopped'
     await context.globalState.update('currentTaskId', '')
+
+
   })
 }
 
