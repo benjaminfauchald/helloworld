@@ -5,7 +5,7 @@ import * as vscode from 'vscode'
 import { MainTreeViewProvider } from './treeviews/MainTreeViewProvider';
 import { BranchTreeViewProvider } from './treeviews/BranchTreeViewProvider';
 import BranchTreeItem from "./treeviews/BranchTreeItem";
-import GitService from "./services/GitService";
+import GitService, { GitFlowPrefix } from "./services/GitService";
 
 import Config from 						'./UseCases/Commands/Config'
 import SetupHarvest from 				'./UseCases/SetupHarvest'
@@ -19,6 +19,7 @@ import Project from 					'./Entities/Project'
 import ProjectCollection from 			'./Entities/ProjectCollection'
 
 import TreeDataProvider from 			'./lib/TreeDataProvider'
+import GitFlow from './UseCases/Commands/GitFlow';
 
 //Git extension
 
@@ -26,6 +27,8 @@ import TreeDataProvider from 			'./lib/TreeDataProvider'
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
+
+
 
 
 
@@ -123,17 +126,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 
-
+	// Show our beloved status bar
 	let harvestTimerInterval: any
 	const statusBar = StatusBar("")
 	statusBar.text = 'Morphois Workflow' 
 	statusBar.show()
 
 
-	console.log("------GitFlow----------")
-	console.log(`Git.Service.activeBranch: ${GitService.activeBranch}`)
-	console.log(`Git.Service.branches: ${GitService.branches}`)
-	console.log("------GitFlow----------")
+
+
+
+
+
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
@@ -260,14 +264,13 @@ export async function activate(context: vscode.ExtensionContext) {
 						{
 
 							// Now finally we log our entry!
-							let jiraUrl: any 
-							jiraUrl = context.globalState.get('JIRA_OLD_API_URL')
-							jiraUrl = jiraUrl.split('/')[2] 
+							let jiraDomain: any 
+							jiraDomain = context.globalState.get('JIRA_DOMAIN')
 
 							let newExternalReference: ExternalReferenceInterface = {
 								id: t!.id,
 								group_id: t!.id,
-								permalink:  `https://${jiraUrl}/secure/RapidBoard.jspa?rapidView=144&projectKey=${projectCode}&modal=detail&selectedIssue=${issueCode}`,
+								permalink:  `https://${jiraDomain}/secure/RapidBoard.jspa?rapidView=144&projectKey=${projectCode}&modal=detail&selectedIssue=${issueCode}`,
 							}
 
 
@@ -283,6 +286,26 @@ export async function activate(context: vscode.ExtensionContext) {
 							let timeEntry = saveNewTimeEntry(newTimeEntry)
 							let timeEntryId:any = (await timeEntry!).id
 							await context.globalState.update('currentTaskId', timeEntryId)
+
+							let branchName: string 
+							branchName = BranchName(timeEntryNote)
+							console.log(`Branch: ${branchName}`)
+							console.log(`Local Branches: ${GitService.branches}`)
+							console.log(`Looking for ${branchName}`)
+
+							//have to be careful if its feature or not
+							let prefix: GitFlowPrefix // will only allow right prefixes (need to be able to set this from config later)
+							prefix="feature"
+							let localBranchName: string
+							localBranchName = `${prefix}/${branchName}`
+
+							if (checkExistingLocalBranchName(localBranchName) === ""){
+								console.log(`Could not find branch, now making new ${prefix} branch ${branchName}`)
+								GitService.flowStart(prefix,branchName)
+							} else {
+								console.log(`Found it and now checking out ${localBranchName}`)
+								GitService.checkout(localBranchName)
+							}
 
 
 
@@ -335,8 +358,31 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // MISC FUNCTIONS
 
+function checkExistingLocalBranchName(branchName: string):string {
+	let found: string
+	found = ""
+
+	GitService.branches.map(b => {
+		console.log(`"${b}":"${branchName}"`)
+		if (b === branchName){
+			found = b
+			console.log(`Found a match! "${b}":"${branchName}"`)
+			return found
+		}
+	})
+
+	return found
+}
+
+function BranchName(branchName: string) : string {
+	let s = branchName
+	if (!s) return ""
+	s = s.substring(0, 200);
+	s = s.replace(/ /g, "_");
 
 
+	return(s || "")
+}
 
 
 
