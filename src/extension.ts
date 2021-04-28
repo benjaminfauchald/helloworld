@@ -270,7 +270,8 @@ export async function activate(context: vscode.ExtensionContext) {
 							let newExternalReference: ExternalReferenceInterface = {
 								id: t!.id,
 								group_id: t!.id,
-								permalink:  `https://${jiraDomain}/secure/RapidBoard.jspa?rapidView=144&projectKey=${projectCode}&modal=detail&selectedIssue=${issueCode}`,
+								//permalink:  `https://${jiraDomain}/secure/RapidBoard.jspa?rapidView=144&projectKey=${projectCode}&modal=detail&selectedIssue=${issueCode}`,
+								permalink:  `https://${jiraDomain}/browse/${issueCode}`,
 							}
 
 
