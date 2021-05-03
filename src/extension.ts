@@ -20,6 +20,7 @@ import ProjectCollection from 			'./Entities/ProjectCollection'
 
 import TreeDataProvider from 			'./lib/TreeDataProvider'
 import GitFlow from './UseCases/Commands/GitFlow';
+import { create } from 'node:domain';
 
 //Git extension
 
@@ -168,6 +169,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		const issueCode: string = item.label!.toString().split(' - ')[0] || ''
 		const projectCode: string = item.label!.toString().split(' - ')[0].split('-')[0] || ''
 
+		await context.globalState.update("JIRA_ISSUE",issueCode)
+		await context.globalState.update("PROJECT_CODE",projectCode)
+
+
 		// Getting all projects and matching if we have a match with jira projec code and harvest code
 		let projectCollection = new ProjectCollection()
 		
@@ -253,6 +258,11 @@ export async function activate(context: vscode.ExtensionContext) {
 				// Can't be bothered to make a check if there is only one task here since usually they have to choose
 				// Maybe in the future user can config to default task...
 
+				if (taskMatchedNames[0].toString() === ""){
+					await vscode.window.showWarningMessage('No budgeted tasks for development in this project.')
+					return
+				}
+
 				await vscode.window
 				.showInformationMessage('Please select task to log to:', ...taskMatchedNames)
 				.then(selection => {
@@ -270,7 +280,8 @@ export async function activate(context: vscode.ExtensionContext) {
 							let newExternalReference: ExternalReferenceInterface = {
 								id: t!.id,
 								group_id: t!.id,
-								permalink:  `https://${jiraDomain}/secure/RapidBoard.jspa?rapidView=144&projectKey=${projectCode}&modal=detail&selectedIssue=${issueCode}`,
+								//permalink:  `https://${jiraDomain}/secure/RapidBoard.jspa?rapidView=144&projectKey=${projectCode}&modal=detail&selectedIssue=${issueCode}`,
+								permalink:  `https://${jiraDomain}/browse/${issueCode}`,
 							}
 
 
@@ -298,6 +309,9 @@ export async function activate(context: vscode.ExtensionContext) {
 							prefix="feature"
 							let localBranchName: string
 							localBranchName = `${prefix}/${branchName}`
+							await context.globalState.update("LOCAL_BRANCH_NAME",localBranchName)
+
+
 
 							if (checkExistingLocalBranchName(localBranchName) === ""){
 								console.log(`Could not find branch, now making new ${prefix} branch ${branchName}`)
@@ -327,7 +341,7 @@ export async function activate(context: vscode.ExtensionContext) {
 							console.log(`harvestTimerInterval: ${harvestTimerInterval}`)
 
 							statusBar.show 
-							vscode.window.showInformationMessage(timeEntryMessage)
+							vscode.window.showInformationMessage(timeEntryMessage,)
 
 						}
 				
@@ -357,6 +371,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 // MISC FUNCTIONS
+
+
 
 function checkExistingLocalBranchName(branchName: string):string {
 	let found: string

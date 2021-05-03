@@ -1,4 +1,5 @@
 import * as vscode from "vscode"
+import GitService, { GitFlowPrefix } from "../../services/GitService";
 import axios from 'axios'
 import Harvest from "../../Entities/Harvest"
 
@@ -11,10 +12,33 @@ function StopTimer (context: vscode.ExtensionContext, statusBar: vscode.StatusBa
     const accessToken: string = await context.globalState.get('accessToken') || ''
     const currentTaskId: string = await context.globalState.get('currentTaskId') || ''
 
-    console.clear
-    console.log(`accountId:${accountId}`)
-    console.log(`accessToken:${accessToken}`)
-    console.log(`currentTaskId:${currentTaskId}`)
+
+
+      let createPullRequest: boolean
+      createPullRequest=false
+      
+      let options = ["Just Commit","Create pull request"]
+    
+      await vscode.window
+      .showInformationMessage('Stopping timer. \n What do you want to do?', ...options)
+      .then(selection => { 
+        console.log(`User selected to ${selection}`)
+        if (selection = options[1]){
+          console.log(`Creating PR...`)
+          createPullRequest=true
+        } else {
+        }
+      })
+   
+      let commitMsg = await vscode.window.showInputBox({ prompt: 'Please enter your commit message as clearly as possible' });
+      GitService.commit(commitMsg)
+
+      if (!createPullRequest) {
+        console.log(`Creating PR now`)
+      } else {
+        console.log(`just logging`)
+      }
+
 
 
     if (!accountId || !accessToken) {
@@ -48,6 +72,8 @@ function StopTimer (context: vscode.ExtensionContext, statusBar: vscode.StatusBa
 
     vscode.window.showInformationMessage('Harvest Timer Stopped')
 
+
+    // Stopping menubar timer
     console.log(`harvestTimerInterval: ${harvestTimerInterval}`)
     clearInterval(harvestTimerInterval)
     statusBar.text ='Harvest Timer Stopped'

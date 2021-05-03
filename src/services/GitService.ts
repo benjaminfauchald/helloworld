@@ -1,7 +1,19 @@
 import * as vscode from "vscode";
 import { execSync, exec } from "child_process";
 
+import * as child_process from 'child_process'
+
 export declare type GitFlowPrefix = "feature" | "hotfix" | "release" | "support" | "";
+
+
+
+interface iGitExec {
+        status: string;
+        message?: string;
+        stderr?: string;
+        stdout?: string;
+}
+
 
 interface IGitFlowConfig {
     branches: {
@@ -27,31 +39,45 @@ class GitService {
         this._outputChannel = outputChannel;
     }
 
-    private exec( command: string, showErrorMessage: boolean = true ) : string {
+    private exec( command: string, showErrorMessage: boolean = true ) :iGitExec {
+        var gitExec: iGitExec = {status:""};
         try {
             this._outputChannel.appendLine( command );
-            const output = execSync( command, {
+            const output = child_process.execSync( command, {
                 cwd: this._cwd
             });
 
+            console.log(`output:${output.toString().trim()}`)
+
             if (output) {
                 this._outputChannel.appendLine( output.toString() );
-                return output.toString().trim();
+                var gitExec: iGitExec = {status:""};
+                gitExec.status = output.toString().trim()
+                return(gitExec) 
+                
             }
-        } catch( ex ) {
-            if ( showErrorMessage && ex && ex.message ) {
-                this._outputChannel.appendLine( `Error: ${ex.message}`);
-                vscode.window.showErrorMessage( ex.message );
-            }
+        } catch( error ) {
+            
+            if ( showErrorMessage && error && error.message ) {
 
-            return "";
+                var gitExec: iGitExec = {status:""};
+                gitExec.status = error.status.toString().trim()    
+                gitExec.message = error.message.toString().trim()    
+                gitExec.stderr = error.stderr.toString().trim()    
+                gitExec.stdout = error.stdout.toString().trim()    
+
+                let errorMessage = `${error.stderr} - ${error.stdout}`
+                this._outputChannel.appendLine(`Error: ${errorMessage}`)
+
+            }
+            return(gitExec) 
         }
-
-        return "";
+        return(gitExec) 
     }
 
+
     private getConfig( key: string ): string {
-        return this.exec(`git config ${key}`, false);
+        return this.exec(`git config ${key}`, false).status;
     }
 
     public get flowConfig(): IGitFlowConfig {
@@ -71,9 +97,10 @@ class GitService {
         };
     }
 
+
     public get branches(): string[] {
         const output = this.exec("git branch --all");
-        const rawBranches = output.split(`\n`);
+        const rawBranches = output.status.split(`\n`);
 
         return rawBranches.map((branch) => {
             branch = branch.replace(/[*]/gm, "");
@@ -85,14 +112,58 @@ class GitService {
 
     public get activeBranch(): string {
         const output = this.exec("git branch");
-        const branches = output.split("\n");
-
+        const branches = output.status.split("\n");
         const activeBranch = branches.find((branch) => branch.startsWith("*"));
         return activeBranch?.replace("*", "").trim() || "";
     }
 
+
+    public commit(commitMsg: any) {
+        console.clear()
+
+        //So now we made a type interface instead that returns the errors if any
+        var gitExec: iGitExec = {status:""};
+        gitExec =  this.exec(`git add . && git commit -am "${commitMsg}"`, true)
+
+        // Now we can do error handling in each function with seperation of concerns
+        console.log(`gitExec.status ${gitExec.status}`)
+        console.log(`gitExec.message ${gitExec.message}`)
+        console.log(`gitExec.stderr ${gitExec.stderr}`)
+        console.log(`gitExec.stdout ${gitExec.stdout}`)
+
+
+        let branch = this.activeBranch                  //The whole branchname will clutter the error message, so lets just get the issue number
+        let issue = branch.split("_")[0]                // remove the description
+        let prefix = branch.split("/")[0] + "/"         // remove the prefix
+
+        console.log(`branch: ${prefix}`)
+        console.log(`issue: ${prefix}`)
+        console.log(`prefix: ${prefix}`)
+
+        if (gitExec.status != "1") {                    // This check sucks, this has to be refactored, i dont know why he did it this way
+
+            // Clean up the branch name so we can see it in the error message box
+            gitExec.status = gitExec.status.split('\n')[1]
+            issue = issue.replace(prefix,'')
+            gitExec.status = `Done. ${issue}: ${gitExec.status}`
+            vscode.window.showInformationMessage(`${gitExec.status}`)
+            console.log(`Status: ${gitExec.status}`)
+
+
+        } else {
+
+            // Clean up the branch name so we can see it in the error message box
+            let errorMessage = `${gitExec.stderr} - ${gitExec.stdout}`
+            errorMessage = errorMessage.replace(branch,issue)
+            errorMessage = errorMessage.replace(prefix,'')
+            vscode.window.showErrorMessage(errorMessage)
+    
+        }
+    }
+
+
     public checkout(branch: string): string {
-        return this.exec(`git checkout ${branch}`);
+        return this.exec(`git checkout ${branch}`).status;
     }
 
     public flowStart(prefix: GitFlowPrefix, branch: string) {
@@ -100,7 +171,7 @@ class GitService {
     }
 
     public flowTrack(prefix: GitFlowPrefix, branch: string | vscode.TreeItemLabel) {
-        return this.exec(`git flow ${prefix} track ${branch}`);
+        return this.exec(`git flow ${prefix} track ${branch}`).status;
     }
 
     public flowFinish( prefix: GitFlowPrefix, branch: string | vscode.TreeItemLabel ) {
