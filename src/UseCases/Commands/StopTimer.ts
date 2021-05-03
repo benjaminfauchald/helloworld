@@ -30,8 +30,7 @@ function StopTimer (context: vscode.ExtensionContext, statusBar: vscode.StatusBa
         }
       })
    
-      const commitMsg = await vscode.window.showInputBox({ prompt: 'Please enter your commit message as clearly as possible' });
-      GitService.commit(commitMsg)
+      GitService.commit()
 
       if (!createPullRequest) {
         console.log(`Creating PR now`)

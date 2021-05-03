@@ -92,10 +92,23 @@ class GitService {
         return activeBranch?.replace("*", "").trim() || "";
     }
 
-    public commit(commitMsg: any): string {
-        const output = this.exec(`git commit -am "${commitMsg}"`)
-        return output;
+
+    public commit() {
+        vscode.window.showInputBox({
+            placeHolder: "Enter commit message"
+        }).then( ( tagMessage ) => {
+            execSync("", {
+                input: tagMessage,
+            });
+        });
+        let tagMessage = " --- "
+        return this.exec(`git commit -am "test ${tagMessage}"`);
     }
+
+    // public commit(commitMsg: any): string {
+    //     const output = this.exec(`git commit -am "${commitMsg}"`)
+    //     return output;
+    // }
 
     public checkout(branch: string): string {
         return this.exec(`git checkout ${branch}`);
