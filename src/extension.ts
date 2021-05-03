@@ -169,6 +169,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		const issueCode: string = item.label!.toString().split(' - ')[0] || ''
 		const projectCode: string = item.label!.toString().split(' - ')[0].split('-')[0] || ''
 
+		await context.globalState.update("JIRA_ISSUE",issueCode)
+		await context.globalState.update("PROJECT_CODE",projectCode)
+
+
 		// Getting all projects and matching if we have a match with jira projec code and harvest code
 		let projectCollection = new ProjectCollection()
 		
@@ -305,6 +309,9 @@ export async function activate(context: vscode.ExtensionContext) {
 							prefix="feature"
 							let localBranchName: string
 							localBranchName = `${prefix}/${branchName}`
+							await context.globalState.update("LOCAL_BRANCH_NAME",localBranchName)
+
+
 
 							if (checkExistingLocalBranchName(localBranchName) === ""){
 								console.log(`Could not find branch, now making new ${prefix} branch ${branchName}`)
