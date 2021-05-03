@@ -71,6 +71,7 @@ class GitService {
         };
     }
 
+
     public get branches(): string[] {
         const output = this.exec("git branch --all");
         const rawBranches = output.split(`\n`);
@@ -89,6 +90,11 @@ class GitService {
 
         const activeBranch = branches.find((branch) => branch.startsWith("*"));
         return activeBranch?.replace("*", "").trim() || "";
+    }
+
+    public commit(commitMsg: any): string {
+        const output = this.exec(`git commit -am "${commitMsg}"`)
+        return output;
     }
 
     public checkout(branch: string): string {

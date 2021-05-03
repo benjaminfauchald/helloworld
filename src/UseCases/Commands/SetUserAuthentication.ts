@@ -98,7 +98,7 @@ function SetUserAuthentication (context: vscode.ExtensionContext): vscode.Dispos
         return false
       }
     }
-  
+
     
     return true
 

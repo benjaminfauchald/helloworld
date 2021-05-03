@@ -20,6 +20,7 @@ import ProjectCollection from 			'./Entities/ProjectCollection'
 
 import TreeDataProvider from 			'./lib/TreeDataProvider'
 import GitFlow from './UseCases/Commands/GitFlow';
+import { create } from 'node:domain';
 
 //Git extension
 
@@ -253,6 +254,11 @@ export async function activate(context: vscode.ExtensionContext) {
 				// Can't be bothered to make a check if there is only one task here since usually they have to choose
 				// Maybe in the future user can config to default task...
 
+				if (taskMatchedNames[0].toString() === ""){
+					await vscode.window.showWarningMessage('No budgeted tasks for development in this project.')
+					return
+				}
+
 				await vscode.window
 				.showInformationMessage('Please select task to log to:', ...taskMatchedNames)
 				.then(selection => {
@@ -328,7 +334,7 @@ export async function activate(context: vscode.ExtensionContext) {
 							console.log(`harvestTimerInterval: ${harvestTimerInterval}`)
 
 							statusBar.show 
-							vscode.window.showInformationMessage(timeEntryMessage)
+							vscode.window.showInformationMessage(timeEntryMessage,)
 
 						}
 				
@@ -358,6 +364,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 // MISC FUNCTIONS
+
+
 
 function checkExistingLocalBranchName(branchName: string):string {
 	let found: string
