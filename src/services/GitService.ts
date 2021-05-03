@@ -125,46 +125,40 @@ class GitService {
         var gitExec: iGitExec = {status:""};
         gitExec =  this.exec(`git add . && git commit -am "${commitMsg}"`, true)
 
+        // Now we can do error handling in each function with seperation of concerns
         console.log(`gitExec.status ${gitExec.status}`)
         console.log(`gitExec.message ${gitExec.message}`)
         console.log(`gitExec.stderr ${gitExec.stderr}`)
         console.log(`gitExec.stdout ${gitExec.stdout}`)
 
-        // Now we can do error handling in each function with seperation of concerns
 
-        console.log(`Just showing gitExec.stderr ${gitExec.stderr}`)
-        if (!gitExec.stderr)
-        {
-            console.log("I tink you did it!")
+        let branch = this.activeBranch                  //The whole branchname will clutter the error message, so lets just get the issue number
+        let issue = branch.split("_")[0]                // remove the description
+        let prefix = branch.split("/")[0] + "/"         // remove the prefix
+
+        console.log(`branch: ${prefix}`)
+        console.log(`issue: ${prefix}`)
+        console.log(`prefix: ${prefix}`)
+
+        if (gitExec.status != "1") {                    // This check sucks, this has to be refactored, i dont know why he did it this way
+
+            // Clean up the branch name so we can see it in the error message box
+            gitExec.status = gitExec.status.split('\n')[1]
+            issue = issue.replace(prefix,'')
+            gitExec.status = `Done. ${issue}: ${gitExec.status}`
+            vscode.window.showInformationMessage(`${gitExec.status}`)
+            console.log(`Status: ${gitExec.status}`)
 
 
-            // gitExec.status = error.status.toString().trim()    
-            // gitExec.message = error.message.toString().trim()    
-            // gitExec.stderr = error.stderr.toString().trim()    
-            // gitExec.stdout = error.stdout.toString().trim()   
+        } else {
 
-            let branch = this.activeBranch                  //The whole branchname will clutter the error message, sp lets just get the issue number
-            let issue = branch.split("_")[0]                // remove the description
-            let prefix = branch.split("/")[0] + "/"         // remove the prefix
-    
+            // Clean up the branch name so we can see it in the error message box
             let errorMessage = `${gitExec.stderr} - ${gitExec.stdout}`
-
             errorMessage = errorMessage.replace(branch,issue)
             errorMessage = errorMessage.replace(prefix,'')
-        //    console.log(`branch: ${branch} prefix: ${prefix} errorMessage: ${errorMessage}`)
             vscode.window.showErrorMessage(errorMessage)
     
-    
-        } else {
-            console.log(`NO ERROR ${gitExec.status}`)
-            vscode.window.showInformationMessage(`Status: ${gitExec.status}`)
         }
-
-
-
-
-
-
     }
 
 
