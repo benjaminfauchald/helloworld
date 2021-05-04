@@ -1,25 +1,32 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
+import axios from 'axios'
 
-import { MainTreeViewProvider } from './treeviews/MainTreeViewProvider';
-import { BranchTreeViewProvider } from './treeviews/BranchTreeViewProvider';
-import BranchTreeItem from "./treeviews/BranchTreeItem";
-import GitService, { GitFlowPrefix } from "./services/GitService";
 
+import { MainTreeViewProvider } from 	'./treeviews/MainTreeViewProvider'
+import { BranchTreeViewProvider } from 	'./treeviews/BranchTreeViewProvider'
+import BranchTreeItem from 				'./treeviews/BranchTreeItem'
+import GitService, { GitFlowPrefix } from './services/GitService'
+// import GitFlow from 					'./UseCases/Commands/GitFlow';	// I don't think we use this anymore....
+
+import BitBucketTest from 				'./UseCases/Commands/BitBucketTest'
 import Config from 						'./UseCases/Commands/Config'
-import SetupHarvest from 				'./UseCases/SetupHarvest'
 import StopTimer from 					'./UseCases/Commands/StopTimer'
+import SetupHarvest from 				'./UseCases/SetupHarvest'
 import saveNewTimeEntry from 			'./UseCases/saveNewTimeEntry' 
 
-import TaskInterface from 				'./Entities/Interfaces/TaskInterface';
-import TimeEntryInterface from 			'./Entities/Interfaces/TimeEntryInterface';
-import ExternalReferenceInterface from 	'./Entities/Interfaces/ExternalReferenceInterface';
+import TaskInterface from 				'./Entities/Interfaces/TaskInterface'
+import TimeEntryInterface from 			'./Entities/Interfaces/TimeEntryInterface'
+import ExternalReferenceInterface from 	'./Entities/Interfaces/ExternalReferenceInterface'
+import BitBucketInterface from 			'./Entities/Interfaces/BitBucketInterface'
+
+import BitBucket from 					'./Entities/BitBucket'
 import Project from 					'./Entities/Project'
 import ProjectCollection from 			'./Entities/ProjectCollection'
 
-import TreeDataProvider from 			'./lib/TreeDataProvider'
-import GitFlow from './UseCases/Commands/GitFlow';
+import TreeDataProvider from 			'./lib/TreeDataProvider'	// move to treeviews
+
 import { create } from 'node:domain';
 
 //Git extension
@@ -135,11 +142,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
 
-
-
-
-
-
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	context.globalState.update('JIRA_OLD_API_URL','https://morphosis.atlassian.net/rest/agile/1.0/')
@@ -147,15 +149,72 @@ export async function activate(context: vscode.ExtensionContext) {
 	Config("JIRA_DOMAIN","printenv JIRA_DOMAIN",context)
 	Config("JIRA_USERNAME","git config user.email",context)
 	Config("JIRA_PASSWORD","printenv JIRA_API_KEY",context)
+
+
+
+	Config("BITBUCKET_USERNAME","printenv BITBUCKET_USERNAME",context)
+	Config("BITBUCKET_PASSWORD","printenv BITBUCKET_PASSWORD",context)
+	Config("BITBUCKET_URL","printenv BITBUCKET_URL",context)
+
+
 	Config("HARVEST_DOMAIN","printenv HARVEST_DOMAIN",context)
 	Config("HARVEST_ACCESS_TOKEN","printenv HARVEST_ACCESS_TOKEN",context)
 	Config("HARVEST_ACCOUNT_ID","printenv HARVEST_ACCOUNT_ID",context)
-	Config("HARVEST_ACCESS_TOKEN","printenv HARVEST_ACCESS_TOKEN",context)
+
 	Config("FRESHTEAM_API_KEY","printenv FRESHTEAM_API_KEY",context)
 	Config("SLACK_TICKET_HOOK_PRODUCTION","printenv SLACK_TICKET_HOOK_PRODUCTION",context)
 
 	// Logging into harvest
 	await SetupHarvest(context)
+	BitBucketTest(context)
+
+
+	console.trace
+	console.log("BitBucket Testing....")
+
+        
+	const BitBucketCommits = async (): Promise<any> => {
+        const bitBucket = new BitBucket({
+			BITBUCKET_USERNAME: await context.globalState.get("BITBUCKET_USERNAME") || '', 
+			BITBUCKET_PASSWORD: await context.globalState.get("BITBUCKET_PASSWORD") || '', 
+			BITBUCKET_URL: await context.globalState.get("BITBUCKET_URL") || '' 
+		})
+
+
+		let q =  encodeURIComponent("updated_on <= 2021-01-01")
+		let action = "repositories"
+		let url =  `${bitBucket.BITBUCKET_URL}${action}`
+
+		console.log(`url: ${url}`)
+
+		console.log(`bitBucket.headers ${bitBucket.headers}`)
+          
+        let userResponse: any
+        try {
+          userResponse = await axios.get(
+            url,
+            { headers : bitBucket.headers }
+          )
+        } catch (err) {
+          console.log(err)
+        }
+
+		const data = userResponse.data
+    	console.log(data)
+        
+    	return data
+
+
+	}
+
+
+
+
+	console.log(await BitBucketCommits())
+
+
+
+
 
 	// Adding Jira Treeview with issues
 	vscode.window.registerTreeDataProvider('taskOutline', new TreeDataProvider());
@@ -191,7 +250,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 		})
 
-		console.log(`projectCollectionMatched.length ${projectCollectionMatched.length}`)
 		//No match? Then tell user we cannot log until we add the jira code to the harvest project
 		if (projectCollectionMatched.length === 0) {
 

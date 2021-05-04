@@ -9,10 +9,13 @@ async function Config(config: string, cmd: string, context: vscode.ExtensionCont
     return await exec(cmd, (error: { message: string; }, stdout: string, stderr: string) => {
        if (error) {
            console.log(`error: ${error.message}`)
+           console.log(`stderr: ${stderr}`)
+           console.log(`stderr: ${stdout}`)
            return;
        }
        if (stderr) {
            console.log(`stderr: ${stderr}`)
+           console.log(`stderr: ${stdout}`)
            return;
        }
        context.globalState.update(config,stdout.trim())
