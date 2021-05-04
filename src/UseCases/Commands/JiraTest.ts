@@ -18,7 +18,10 @@ function JiraTest (context: vscode.ExtensionContext): vscode.Disposable {
 
     const jira = new Jira({
       JIRA_USERNAME: JIRA_USERNAME,
-      JIRA_PASSWORD: JIRA_USERNAME
+      JIRA_PASSWORD: JIRA_PASSWORD,
+      JIRA_API_URL: await context.globalState.get("JIRA_API_URL") || '',
+      JIRA_ACTION: '',
+      JIRA_QUERY: ''
     })
 
  

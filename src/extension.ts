@@ -19,9 +19,12 @@ import saveNewTimeEntry from 			'./UseCases/saveNewTimeEntry'
 import TaskInterface from 				'./Entities/Interfaces/TaskInterface'
 import TimeEntryInterface from 			'./Entities/Interfaces/TimeEntryInterface'
 import ExternalReferenceInterface from 	'./Entities/Interfaces/ExternalReferenceInterface'
+import JiraInterface from 				'./Entities/Interfaces/JiraInterface'
 import BitBucketInterface from 			'./Entities/Interfaces/BitBucketInterface'
 
 import BitBucket from 					'./Entities/BitBucket'
+import Jira from	 					'./Entities/Jira'
+
 import Project from 					'./Entities/Project'
 import ProjectCollection from 			'./Entities/ProjectCollection'
 
@@ -144,11 +147,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	context.globalState.update('JIRA_OLD_API_URL','https://morphosis.atlassian.net/rest/agile/1.0/')
 
 	Config("JIRA_DOMAIN","printenv JIRA_DOMAIN",context)
 	Config("JIRA_USERNAME","git config user.email",context)
 	Config("JIRA_PASSWORD","printenv JIRA_API_KEY",context)
+
+	// refactor
+	context.globalState.update('JIRA_API_URL','https://morphosis.atlassian.net/rest/api/3/')
 
 
 
@@ -167,6 +172,20 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Logging into harvest
 	await SetupHarvest(context)
 	BitBucketTest(context)
+
+
+
+
+
+
+
+
+
+
+	  //******* bit bucket */
+
+
+
 
 
 	console.trace

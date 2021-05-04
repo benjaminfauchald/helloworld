@@ -4,24 +4,18 @@ import Jira from '../Entities/Jira'
 import JiraIssueInterface from '../Entities/Interfaces/JiraIssueInterface'
 import GetJiraIssues from '../UseCases/Commands/GetJiraIssues'
 import { strict } from "node:assert"
+import JiraInterface from '../Entities/Interfaces/JiraInterface';
 
 class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
-
- 
-
-
   private _onDidChangeTreeData: vscode.EventEmitter<TreeItem|null|undefined> = new vscode.EventEmitter<TreeItem|null|undefined>();
 
- 
-
-  data: TreeItem[];
+    data: TreeItem[]
 
   constructor() {
-    this.data = [];
+    this.data = []
   }
 
-
-  refresh(data: TreeItem): void {
+   refresh(data: TreeItem): void {
     this._onDidChangeTreeData.fire(data);
   }
   
@@ -29,15 +23,24 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     return element;
   }
 
-  getChildren(element?: TreeItem|undefined): vscode.ProviderResult<TreeItem[]> {
+  
+  getChildren(element?: TreeItem|undefined ): vscode.ProviderResult<TreeItem[]> {
     if (element === undefined) {
+       
 
+	    ///* BAD BAD BAD - how can I pass these paramas from outside?
 
-    
-        
       const GetJiraIssues = async (): Promise<any> => {
-        const jira = new Jira()
-        const url = "https://morphosis.atlassian.net/rest/api/3/search?jql=assignee=currentuser()"
+        const jira = new Jira({
+          JIRA_USERNAME: 'benjamin@morphos.is', 
+          JIRA_PASSWORD: 'tOH5wtCopdLRe4pcav8tC16E', 
+          JIRA_API_URL: 'https://morphosis.atlassian.net/rest/api/3/',
+          JIRA_ACTION: 'search',
+          JIRA_QUERY: 'jql=assignee=currentuser()',
+        })
+
+
+        const url = `${jira.JIRA_API_URL}/${jira.JIRA_ACTION}?${jira.JIRA_QUERY}`
           
         let userResponse: any
         try {
@@ -60,7 +63,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
         // console.log `Key: ${issue.issueKey}`
       
         let jiraIssue: string
-        let jiraIssues:TreeItem[]; 
+        let jiraIssues:vscode.TreeItem[]; 
         jiraIssues = [] 
 
         let i=0
@@ -71,7 +74,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
         for (i = 0; i < data.issues.length; i++) {
           key = data?.issues[i]?.key
           summary = data?.issues[i]?.fields?.summary || ''
-           
+          
           // console.log(key)
           // console.log(summary)
 
@@ -86,33 +89,32 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
           }
 
 
-          let jiraTreeItem = new TreeItem(jiraIssue)
+          let jiraTreeItem = new vscode.TreeItem(jiraIssue)
 
           jiraTreeItem.command = {
             command: "taskOutline.selectNode",
             title: "Select Node",
             arguments: [jiraTreeItem]
           };  
-         
+        
           jiraIssues.push(jiraTreeItem)
 
         }
-
         return jiraIssues
       }
 
+      
+      let jiraData = GetJiraIssues() 
 
 
-
-      let my_data = GetJiraIssues() 
-      if (my_data === undefined)
+      if (jiraData === undefined)
       { 
         let error_data  = [new TreeItem('Error, could not connect to JIRA')]
         return error_data
       }
       else
       {
-        return my_data;
+        return jiraData;
       }     
     }
     return element.children;

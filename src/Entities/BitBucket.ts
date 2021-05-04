@@ -54,20 +54,16 @@ class BitBucket {
     }
 
 
-  // OK, se we use standard BASIC Auth here
 
     get headers () {
+      // OK, se we use standard BASIC Auth here, base64, dont forget to get to string, not array! ;)
       var auth = Buffer.from(this.BITBUCKET_USERNAME + ':' + this.BITBUCKET_PASSWORD).toString('base64')
       let header: string
-
 
       return {
         "Authorization" : "`Basic ${auth}`"
       }
-
     }
-
-
 
 
   get props (): BitBucketInterface {
